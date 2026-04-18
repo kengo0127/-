@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中小企業診断士 副業ロードマップ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=JetBrains+Mono:wght@300;400&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141416;
+    --surface2: #1a1a1d;
+    --border: #2a2a2e;
+    --accent: #c8a96e;
+    --accent2: #7eb8c8;
+    --accent3: #c87e7e;
+    --text: #e8e4dc;
+    --text-muted: #888;
+    --text-dim: #555;
+    --p1: #c8a96e;
+    --p2: #7eb8c8;
+    --p3: #8ec87e;
+    --p4: #888;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  .grain {
+    position: fixed; inset: 0; pointer-events: none; z-index: 999;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  header {
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(200,169,110,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  .subtitle {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 1rem;
+    margin-bottom: 3rem;
+    padding: 1.2rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .phase { margin-bottom: 2.5rem; }
+
+  .phase-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+  }
+
+  .phase-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.1em;
+  }
+
+  .phase-timing {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    white-space: nowrap;
+  }
+
+  .task {
+    display: grid;
+    grid-template-columns: 4px 1fr;
+    gap: 0 1.2rem;
+    margin-bottom: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .task:hover { border-color: #3a3a3e; }
+
+  .task-bar { background: var(--p4); }
+  .task.p1 .task-bar { background: var(--p1); }
+  .task.p2 .task-bar { background: var(--p2); }
+  .task.p3 .task-bar { background: var(--p3); }
+  .task.p4 .task-bar { background: var(--p4); }
+
+  .task.done { opacity: 0.45; }
+  .task.done .task-bar { background: var(--p3) !important; }
+  .task.done .task-name { text-decoration: line-through; color: var(--text-muted); }
+  .task.done .badge { opacity: 0.4; }
+
+  .task-body { padding: 1.1rem 1.2rem 1.1rem 0; }
+
+  .task-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 1rem; margin-bottom: 0.5rem;
+    cursor: pointer;
+  }
+
+  .check-btn {
+    width: 20px; height: 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    background: transparent;
+    margin-top: 2px;
+  }
+  .check-btn:hover { border-color: var(--p3); }
+  .task.done .check-btn { background: var(--p3); border-color: var(--p3); }
+  .check-btn svg { display: none; }
+  .task.done .check-btn svg { display: block; }
+
+  .progress-wrap {
+    margin-bottom: 2rem;
+    padding: 1rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.6rem;
+    display: flex; justify-content: space-between;
+  }
+  .progress-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--p3);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .task-name {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 1px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+
+  .badge.p1 { background: rgba(200,169,110,0.15); color: var(--p1); border: 1px solid rgba(200,169,110,0.3); }
+  .badge.p2 { background: rgba(126,184,200,0.12); color: var(--p2); border: 1px solid rgba(126,184,200,0.25); }
+  .badge.p3 { background: rgba(142,200,126,0.1); color: var(--p3); border: 1px solid rgba(142,200,126,0.2); }
+  .badge.p4 { background: rgba(136,136,136,0.1); color: var(--p4); border: 1px solid rgba(136,136,136,0.2); }
+
+  .task-detail {
+    display: none;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  .task.open .task-detail { display: block; }
+
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin-top: 0.7rem;
+  }
+
+  @media (max-width: 500px) {
+    .pros-cons { grid-template-columns: 1fr; }
+  }
+
+  .pros, .cons {
+    padding: 0.7rem 0.9rem;
+    border-radius: 1px;
+    font-size: 0.75rem;
+    line-height: 1.7;
+  }
+
+  .pros { background: rgba(142,200,126,0.06); border: 1px solid rgba(142,200,126,0.15); }
+  .cons { background: rgba(200,126,126,0.06); border: 1px solid rgba(200,126,126,0.15); }
+
+  .pros-label, .cons-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.4rem;
+  }
+
+  .pros-label { color: var(--p3); }
+  .cons-label { color: var(--accent3); }
+
+  .note {
+    margin-top: 0.6rem;
+    padding: 0.5rem 0.8rem;
+    background: rgba(200,169,110,0.05);
+    border-left: 2px solid rgba(200,169,110,0.3);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .expand-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    margin-top: 0.4rem;
+    letter-spacing: 0.1em;
+  }
+
+  .summary {
+    margin-top: 3rem;
+    padding: 1.8rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+
+  .summary h3 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .summary p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.9;
+  }
+
+  .highlight { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <div class="eyebrow">Side Business Launch Roadmap</div>
+  <h1>中小企業診断士 副業<br>準備ロードマップ</h1>
+  <p class="subtitle">登録申請後 〜 最初の案件受注まで ／ 製造R&amp;D×データ解析×IoT の強みを活かす</p>
+</header>
+
+<div class="container">
+
+  <div class="legend">
+    <div class="legend-item"><div class="dot" style="background:var(--p1)"></div>最優先・今すぐ着手</div>
+    <div class="legend-item"><div class="dot" style="background:var(--p2)"></div>高優先・1ヶ月以内</div>
+    <div class="legend-item"><div class="dot" style="background:var(--p3)"></div>中優先・2〜3ヶ月</div>
+    <div class="legend-item"><div class="dot" style="background:var(--p4)"></div>低優先・必要になったら</div>
+    <div class="legend-item" style="margin-left:auto; font-size:0.65rem; color:var(--text-dim)">▶ 各タスクをタップで詳細展開</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>PROGRESS</span>
+      <span id="prog-text">0 / 14 完了</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-num">PHASE 01</span>
+      <span class="phase-title">登録・法的整備</span>
+      <span class="phase-timing">〜登録申請直後</span>
+    </div>
+
+    <div class="task p1" data-id="task01">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">中小企業診断士の登録申請（実務補習完了後）</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p1">最優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>登録なしでは「診断士として」名乗れない。名称独占資格なので登録が活動の前提。</div>
+            <div class="cons"><div class="cons-label">注意</div>登録証が届くまで数週間かかる。申請のタイミングが遅れると活動開始も後ろ倒しに。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p1" data-id="task02">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">開業届の提出（税務署）＋青色申告承認申請</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p1">最優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>青色申告で最大65万円控除。経費計上の根拠になる。すでに個人事業主なら確認のみでOK。</div>
+            <div class="cons"><div class="cons-label">注意</div>青色申告承認申請は事業開始から2ヶ月以内が期限。後回しにすると今年分は白色に。</div>
+          </div>
+          <div class="note">✔ すでに個人事業主登録済みなら追加手続き不要の可能性あり。税務署に確認を。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p2" data-id="task03">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">本業との利益相反・情報管理ルールの確認</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p2">高優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>副業OKでも「競合他社支援はNG」等の条件がある場合が多い。事前確認で後のリスクゼロに。</div>
+            <div class="cons"><div class="cons-label">注意</div>特に製造業クライアントを支援する場合、本業と業種が重なるケースに注意。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-num">PHASE 02</span>
+      <span class="phase-title">自己ブランディング・集客基盤</span>
+      <span class="phase-timing">登録後 1ヶ月以内</span>
+    </div>
+
+    <div class="task p1" data-id="task04">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">強み・提供価値の言語化（スキル棚卸し）</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p1">最優先</span>
+        </div>
+        <div class="task-detail">
+          <p>あなたの差別化ポイントは「製造R&amp;D経験 × データ解析 × 診断士資格」の三角形。ここを言語化しないと、HPも名刺もぼやける。</p>
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">強みの軸候補</div>・製造業の現場感覚を持つ診断士<br>・IoT/AI導入支援（Jetson, RealSense等）<br>・データドリブンな経営改善提案<br>・補助金申請 × 設備投資の一体支援</div>
+            <div class="cons"><div class="cons-label">やりがちな失敗</div>「なんでもできます」は最も弱い自己PR。最初は「製造業 × DX × 補助金」など1〜2軸に絞った方が刺さる。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p1" data-id="task05">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">個人HP のアップデート（診断士対応）</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p1">最優先</span>
+        </div>
+        <div class="task-detail">
+          <p>すでにHPがある。あとは診断士としての実績・サービス・問い合わせ動線を追加するだけ。ゼロからではない分、大きなアドバンテージ。</p>
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">追加すべき要素</div>・サービス一覧（補助金支援、経営診断、DX相談など）<br>・保有資格・経歴<br>・問い合わせフォーム<br>・簡易な料金目安（「要相談」でも可）</div>
+            <div class="cons"><div class="cons-label">注意</div>完璧を目指さず「動ける状態」優先。実績ゼロでも「支援可能領域」の記載でOK。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p2" data-id="task06">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">名刺の作成（診断士肩書き入り）</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p2">高優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>異業種交流会・協会イベント等でのネットワーキングに必須。登録証が届いたらすぐ発注できるよう、デザインを事前に準備しておく。</div>
+            <div class="cons"><div class="cons-label">コスト</div>100〜200枚で2,000〜5,000円程度。Vistaprint等のオンライン印刷が安い。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p2" data-id="task07">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">中小企業診断士協会への加入検討</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p2">高優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>研究会・支部活動を通じた案件紹介、人脈構築。特に「稼プロ」等の実務系研究会は案件獲得への近道になりやすい。公的機関の登録支援機関になるためにも協会加入が有利に働くケースがある。</div>
+            <div class="cons"><div class="cons-label">コスト・注意</div>年会費：東京協会で約30,000円/年。副業初期は費用対効果を見ながら判断。加入しなくても活動は可能だが、人脈形成の速度が変わる。</div>
+          </div>
+          <div class="note">💡 まず「プロコン塾」「研究会の見学」など無料・低コストの接点から入る方法もある。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p3" data-id="task08">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">SNS（X / LinkedIn）のプロフィール整備</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p3">中優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>Xは診断士クラスタが活発。情報収集と認知形成が同時にできる。LinkedInは企業担当者・支援機関との接点に有効。</div>
+            <div class="cons"><div class="cons-label">注意</div>本業特定リスクに注意。「製造業R&amp;D勤務」程度の記載に留め、会社名・プロジェクト名は出さない。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-num">PHASE 03</span>
+      <span class="phase-title">案件獲得チャネルの開拓</span>
+      <span class="phase-timing">1〜2ヶ月以内</span>
+    </div>
+
+    <div class="task p1" data-id="task09">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">補助金支援プラットフォームへの登録（ミラサポplus・採択支援機関等）</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p1">最優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>ものづくり補助金・IT導入補助金は製造業クライアントと相性抜群。登録支援機関になると案件紹介ルートが生まれる。成功報酬型も多く初期リスク低い。</div>
+            <div class="cons"><div class="cons-label">注意</div>登録支援機関は「認定経営革新等支援機関」の認定が必要（診断士資格で申請可能だが審査に時間がかかる）。まず「支援者」として既存機関と協力する形から始める手もある。</div>
+          </div>
+          <div class="note">💡 最初の1件は「知人の会社の補助金申請を手伝う」が最短ルートになることが多い。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p2" data-id="task10">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">クラウドソーシング・副業プラットフォームへの登録</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p2">高優先</span>
+        </div>
+        <div class="task-detail">
+          <p>HiPro Direct（すでに利用中）、ビザスク、Coconala、Bizreach Outsourcing等。</p>
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>経営相談・スポットコンサルの案件が流れてくる。ビザスクは時給制スポット相談が多く、初案件に適している（1時間3〜5万円程度）。</div>
+            <div class="cons"><div class="cons-label">注意</div>プラットフォーム手数料が高い（20〜30%）。長期的には直接受注へ移行が理想。プロフィール充実度で表示順が変わるため、完成度が肝心。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p3" data-id="task11">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">地域の商工会議所・よろず支援拠点へのコンタクト</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p3">中優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>公的機関経由の案件は継続性が高い。「よろず支援拠点」のコーディネーターとして登録されれば、月次で相談案件が回ってくる仕組みがある。</div>
+            <div class="cons"><div class="cons-label">注意</div>単価は低め（謝礼制）。ただし実績・経験値の蓄積という意味では序盤に最適。製造業特化の強みをアピールすると差別化しやすい。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p4" data-id="task12">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">セミナー登壇・勉強会主催</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p4">低優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>「IoT×製造業DX」「補助金活用×設備投資」テーマのセミナーは競合が少なく、専門性を示しやすい。認知拡大と案件獲得を同時に狙える。</div>
+            <div class="cons"><div class="cons-label">注意</div>準備工数が大きい。実績ゼロの序盤より、3〜6ヶ月後に1〜2件の実績を得てからの方が信頼度が高い。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-num">PHASE 04</span>
+      <span class="phase-title">知識・スキルの整備</span>
+      <span class="phase-timing">並行して随時</span>
+    </div>
+
+    <div class="task p2" data-id="task13">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">補助金最新情報のキャッチアップ（ものづくり補助金・IT導入補助金・事業再構築補助金）</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p2">高優先</span>
+        </div>
+        <div class="task-detail">
+          <p>補助金は公募スケジュールが変わるため、J-Net21・中小機構・各補助金公式サイトをRSS等で定期チェック。</p>
+          <div class="note">💡 製造業クライアントに最も刺さるのは「ものづくり補助金」。要件・採択率・審査の傾向を深く理解しておくと提案力が段違いになる。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task p3" data-id="task14">
+      <div class="task-bar"></div>
+      <div class="task-body">
+        <div class="task-top" onclick="toggle(this)">
+          <button class="check-btn" onclick="toggleDone(event,this)"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div><div class="task-name">財務分析・収益改善提案の型づくり</div><div class="expand-hint">tap to expand</div></div>
+          <span class="badge p3">中優先</span>
+        </div>
+        <div class="task-detail">
+          <div class="pros-cons">
+            <div class="pros"><div class="pros-label">メリット</div>診断士の王道スキル。決算書から3〜5のKPIを抽出して改善提案につなげる型を持っておくと、初回面談からの信頼度が大きく変わる。</div>
+            <div class="cons"><div class="cons-label">注意</div>試験知識と実務は異なる。中小企業の実際の決算書（簿記・MQ会計）に慣れるため、事例集や勉強会で補強推奨。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <h3>🧭 最初の30日でやること（優先度順）</h3>
+    <p>
+      <span class="highlight">① 登録申請の完了</span>（今月末のポイント確保後すぐ）→
+      <span class="highlight">② スキル棚卸し・強みの言語化</span>（これがすべての基礎）→
+      <span class="highlight">③ HPに診断士サービスページを追加</span>（すでにHPあり、最速で動ける）→
+      <span class="highlight">④ 補助金プラットフォームへの登録開始</span>（製造業×補助金は最強の組み合わせ）→
+      <span class="highlight">⑤ 協会加入を検討</span>（費用対効果を見て判断）。
+      <br><br>
+      名刺・SNS・セミナーは②〜④が動き出してから。完璧を待たず「動ける最低限」で出発し、実績とともにブラッシュアップする方が実際の副業診断士は早く軌道に乗っている。
+    </p>
+  </div>
+
+</div>
+
+<script>
+function getCompleted() {
+  try { return JSON.parse(localStorage.getItem('shindan_done') || '[]'); } catch { return []; }
+}
+function saveCompleted(arr) {
+  localStorage.setItem('shindan_done', JSON.stringify(arr));
+}
+
+function updateProgress() {
+  const tasks = document.querySelectorAll('.task[data-id]');
+  const done = document.querySelectorAll('.task.done').length;
+  const total = tasks.length;
+  document.getElementById('prog-text').textContent = `${done} / ${total} 完了`;
+  document.getElementById('prog-fill').style.width = `${Math.round(done/total*100)}%`;
+}
+
+function toggleDone(e, btn) {
+  e.stopPropagation();
+  const task = btn.closest('.task');
+  const id = task.dataset.id;
+  task.classList.toggle('done');
+  let done = getCompleted();
+  if (task.classList.contains('done')) {
+    if (!done.includes(id)) done.push(id);
+  } else {
+    done = done.filter(x => x !== id);
+  }
+  saveCompleted(done);
+  updateProgress();
+}
+
+function toggle(el) {
+  const task = el.closest('.task');
+  task.classList.toggle('open');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const done = getCompleted();
+  done.forEach(id => {
+    const el = document.querySelector(`.task[data-id="${id}"]`);
+    if (el) el.classList.add('done');
+  });
+  updateProgress();
+});
+</script>
+</body>
+</html>
