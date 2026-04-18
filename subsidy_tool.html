@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>補助金・助成金提案ツール</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3ee;
+  --surface: #ffffff;
+  --border: #e0dbd0;
+  --accent: #1a4b3a;
+  --accent2: #2d7a5a;
+  --accent-light: #e8f4ee;
+  --text: #1a1a1a;
+  --text-muted: #666;
+  --text-dim: #999;
+  --tag-bg: #f0faf4;
+  --tag-border: #a8d8bc;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; font-weight: 300; min-height: 100vh; padding: 2rem 1rem 4rem; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--accent); }
+.header-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; color: var(--accent2); text-transform: uppercase; margin-bottom: 0.5rem; }
+.header h1 { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 0.03em; line-height: 1.4; }
+.header p { margin-top: 0.5rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.8; }
+.progress-bar-wrap { margin-bottom: 2rem; }
+.progress-info { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+.progress-track { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent2); border-radius: 2px; transition: width 0.5s ease; }
+.step { display: none; animation: fadeIn 0.3s ease; }
+.step.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.step-num { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.2em; margin-bottom: 0.6rem; }
+.step-q { font-size: 1.05rem; font-weight: 700; color: var(--text); line-height: 1.6; margin-bottom: 0.4rem; }
+.step-hint { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.7; }
+.options { display: flex; flex-direction: column; gap: 0.6rem; }
+.opt { display: flex; align-items: center; gap: 0.8rem; padding: 0.9rem 1.1rem; background: var(--surface); border: 1.5px solid var(--border); border-radius: 4px; cursor: pointer; transition: all 0.15s; font-size: 0.88rem; color: var(--text); text-align: left; }
+.opt:hover { border-color: var(--accent2); background: var(--accent-light); }
+.opt.selected { border-color: var(--accent); background: var(--accent-light); font-weight: 500; }
+.opt-icon { font-size: 1.1rem; flex-shrink: 0; }
+.multi-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--accent2); letter-spacing: 0.1em; margin-bottom: 0.8rem; }
+.nav { display: flex; gap: 0.8rem; margin-top: 1.8rem; }
+.btn { padding: 0.7rem 1.5rem; border-radius: 3px; font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn-primary { background: var(--accent); color: white; border: none; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-primary:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
+.btn-secondary { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent2); color: var(--accent); }
+.results { display: none; }
+.results.active { display: block; animation: fadeIn 0.3s ease; }
+.results-header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.results-header h2 { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; }
+.results-header p { font-size: 0.8rem; color: var(--text-muted); }
+.result-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 4px; margin-bottom: 1rem; position: relative; overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
+.result-card:hover { border-color: var(--accent2); }
+.result-card.open { border-color: var(--accent); }
+.result-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent2); }
+.result-card.high::before { background: #e85d04; }
+.result-card.mid::before { background: #f4a261; }
+.result-card.low::before { background: #a8d8bc; }
+.card-summary { padding: 1.2rem 1.2rem 1.2rem 1.4rem; }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; }
+.card-name { font-size: 0.92rem; font-weight: 700; color: var(--text); line-height: 1.4; }
+.card-type { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; padding: 0.15rem 0.5rem; border-radius: 2px; white-space: nowrap; flex-shrink: 0; }
+.type-補助金 { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+.type-融資 { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+.type-助成金 { background: #f3e5f5; color: #6a1b9a; border: 1px solid #ce93d8; }
+.type-税制 { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+.card-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 0.6rem; }
+.card-amount { font-size: 0.78rem; color: var(--accent); font-weight: 500; margin-bottom: 0.6rem; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.tag { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; padding: 0.1rem 0.5rem; background: var(--tag-bg); border: 1px solid var(--tag-border); border-radius: 2px; color: var(--accent); letter-spacing: 0.05em; }
+.card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 0.8rem; }
+.match-score { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+.score-dots { display: flex; gap: 3px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+.dot.on { background: var(--accent2); }
+.expand-hint { font-size: 0.7rem; color: var(--accent2); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+.card-detail { display: none; border-top: 1px solid var(--border); padding: 1.2rem 1.2rem 1.2rem 1.4rem; background: #fafaf8; }
+.result-card.open .card-detail { display: block; animation: fadeIn 0.2s ease; }
+.detail-section { margin-bottom: 1.2rem; }
+.detail-section:last-child { margin-bottom: 0; }
+.detail-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--accent2); text-transform: uppercase; margin-bottom: 0.5rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+.detail-content { font-size: 0.8rem; color: var(--text); line-height: 1.9; }
+.detail-list { list-style: none; padding: 0; }
+.detail-list li { font-size: 0.8rem; color: var(--text); line-height: 1.8; padding-left: 1rem; position: relative; }
+.detail-list li::before { content: '▸'; position: absolute; left: 0; color: var(--accent2); font-size: 0.7rem; }
+.detail-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: var(--accent2); text-decoration: none; border-bottom: 1px solid var(--tag-border); padding-bottom: 1px; }
+.detail-link:hover { color: var(--accent); border-color: var(--accent); }
+.summary-box { background: var(--accent-light); border: 1px solid var(--tag-border); border-radius: 4px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.8rem; color: var(--accent); line-height: 1.9; }
+.summary-box strong { font-weight: 700; }
+.no-results { padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+.reset-btn { margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--accent2); cursor: pointer; background: none; border: none; font-family: 'Noto Sans JP', sans-serif; padding: 0; }
+.reset-btn:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="header-label">Proposal Tool</div>
+    <h1>補助金・助成金<br>提案ツール</h1>
+    <p>クライアントの状況に合わせて質問に答えると、活用できる制度を絞り込みます。カードをタップすると申請要件・必要書類などの詳細を確認できます。</p>
+    <div style="margin-top:1rem;padding:0.7rem 1rem;background:#fff8e1;border:1px solid #ffe082;border-radius:3px;font-size:0.75rem;color:#5d4037;line-height:1.8;">
+      ⚠️ <strong>更新注意：</strong>掲載情報は <strong>2025年4月時点</strong> のものです。補助金・助成金・融資制度は年度ごとに要件・上限額・公募スケジュールが変更されます。新年度（4月以降）は内容を確認・更新してから使用してください。
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-info"><span>STEP <span id="step-cur">1</span> / 7</span><span id="prog-pct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="step active" data-step="1">
+    <div class="step-num">STEP 01</div>
+    <div class="step-q">業種を教えてください</div>
+    <div class="step-hint">最も近いものを選択してください</div>
+    <div class="options" data-key="industry" data-type="single">
+      <button class="opt" data-value="製造業"><span class="opt-icon">🏭</span>製造業</button>
+      <button class="opt" data-value="建設業"><span class="opt-icon">🏗️</span>建設業</button>
+      <button class="opt" data-value="小売・飲食"><span class="opt-icon">🛒</span>小売業・飲食業</button>
+      <button class="opt" data-value="IT・情報"><span class="opt-icon">💻</span>IT・情報通信業</button>
+      <button class="opt" data-value="サービス業"><span class="opt-icon">🤝</span>サービス業</button>
+      <button class="opt" data-value="医療・介護"><span class="opt-icon">🏥</span>医療・介護・福祉</button>
+      <button class="opt" data-value="農業・水産"><span class="opt-icon">🌾</span>農業・水産業</button>
+      <button class="opt" data-value="その他"><span class="opt-icon">📋</span>その他</button>
+    </div>
+    <div class="nav"><button class="btn btn-primary" onclick="nextStep()" id="btn-next-1" disabled>次へ →</button></div>
+  </div>
+
+  <div class="step" data-step="2">
+    <div class="step-num">STEP 02</div>
+    <div class="step-q">従業員数はどのくらいですか？</div>
+    <div class="step-hint">パート・アルバイトを含む人数の目安</div>
+    <div class="options" data-key="employees" data-type="single">
+      <button class="opt" data-value="1人"><span class="opt-icon">👤</span>1人（個人事業主）</button>
+      <button class="opt" data-value="2〜5人"><span class="opt-icon">👥</span>2〜5人</button>
+      <button class="opt" data-value="6〜20人"><span class="opt-icon">👨‍👩‍👧‍👦</span>6〜20人</button>
+      <button class="opt" data-value="21〜100人"><span class="opt-icon">🏢</span>21〜100人</button>
+      <button class="opt" data-value="101人以上"><span class="opt-icon">🏦</span>101人以上</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="prevStep()">← 戻る</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-next-2" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="3">
+    <div class="step-num">STEP 03</div>
+    <div class="step-q">主な目的・課題は何ですか？</div>
+    <div class="multi-hint">※ 複数選択可</div>
+    <div class="options" data-key="purpose" data-type="multi">
+      <button class="opt" data-value="設備投資"><span class="opt-icon">⚙️</span>設備・機械の導入・更新</button>
+      <button class="opt" data-value="DX・IT化"><span class="opt-icon">💡</span>DX推進・IT化・業務効率化</button>
+      <button class="opt" data-value="新製品・新事業"><span class="opt-icon">🚀</span>新製品開発・新事業展開</button>
+      <button class="opt" data-value="人材採用・育成"><span class="opt-icon">👨‍💼</span>人材採用・育成・賃上げ</button>
+      <button class="opt" data-value="省エネ・環境"><span class="opt-icon">🌱</span>省エネ・脱炭素・環境対応</button>
+      <button class="opt" data-value="販路開拓"><span class="opt-icon">🌐</span>販路開拓・海外展開</button>
+      <button class="opt" data-value="事業再構築"><span class="opt-icon">🔄</span>事業転換・再構築</button>
+      <button class="opt" data-value="運転資金"><span class="opt-icon">💰</span>運転資金の確保</button>
+      <button class="opt" data-value="創業"><span class="opt-icon">🌟</span>創業・スタートアップ</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="prevStep()">← 戻る</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-next-3" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="4">
+    <div class="step-num">STEP 04</div>
+    <div class="step-q">直近の売上・財務状況は？</div>
+    <div class="step-hint">制度によって要件が異なります</div>
+    <div class="options" data-key="finance" data-type="single">
+      <button class="opt" data-value="好調"><span class="opt-icon">📈</span>売上・利益ともに好調</button>
+      <button class="opt" data-value="横ばい"><span class="opt-icon">➡️</span>概ね横ばい・安定している</button>
+      <button class="opt" data-value="売上減少"><span class="opt-icon">📉</span>売上が減少傾向にある</button>
+      <button class="opt" data-value="赤字・困難"><span class="opt-icon">⚠️</span>赤字・経営が厳しい状況</button>
+      <button class="opt" data-value="創業期"><span class="opt-icon">🌱</span>創業したばかり（3年未満）</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="prevStep()">← 戻る</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-next-4" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="5">
+    <div class="step-num">STEP 05</div>
+    <div class="step-q">想定している投資・資金調達の規模は？</div>
+    <div class="options" data-key="amount" data-type="single">
+      <button class="opt" data-value="〜100万"><span class="opt-icon">💴</span>100万円未満</button>
+      <button class="opt" data-value="100〜500万"><span class="opt-icon">💴</span>100万〜500万円</button>
+      <button class="opt" data-value="500〜1500万"><span class="opt-icon">💴</span>500万〜1,500万円</button>
+      <button class="opt" data-value="1500万〜1億"><span class="opt-icon">💴</span>1,500万〜1億円</button>
+      <button class="opt" data-value="1億以上"><span class="opt-icon">💴</span>1億円以上</button>
+      <button class="opt" data-value="未定"><span class="opt-icon">❓</span>まだ決まっていない</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="prevStep()">← 戻る</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-next-5" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="6">
+    <div class="step-num">STEP 06</div>
+    <div class="step-q">すでに取得・策定しているものはありますか？</div>
+    <div class="multi-hint">※ 複数選択可</div>
+    <div class="options" data-key="certifications" data-type="multi">
+      <button class="opt" data-value="経営革新計画"><span class="opt-icon">📄</span>経営革新計画の承認</button>
+      <button class="opt" data-value="事業継続力強化計画"><span class="opt-icon">📄</span>事業継続力強化計画の認定</button>
+      <button class="opt" data-value="DX認定"><span class="opt-icon">📄</span>DX認定</button>
+      <button class="opt" data-value="ISO・JIS"><span class="opt-icon">📄</span>ISO・JIS等の認証取得</button>
+      <button class="opt" data-value="なし"><span class="opt-icon">✗</span>特になし</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="prevStep()">← 戻る</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-next-6" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="7">
+    <div class="step-num">STEP 07</div>
+    <div class="step-q">資金調達の急ぎ度はどのくらいですか？</div>
+    <div class="step-hint">補助金は採択まで時間がかかるため、タイミングが重要です</div>
+    <div class="options" data-key="urgency" data-type="single">
+      <button class="opt" data-value="急ぎ"><span class="opt-icon">🔥</span>今すぐ〜3ヶ月以内に必要</button>
+      <button class="opt" data-value="半年"><span class="opt-icon">⏰</span>半年以内に必要</button>
+      <button class="opt" data-value="1年"><span class="opt-icon">📅</span>1年以内であれば問題ない</button>
+      <button class="opt" data-value="余裕あり"><span class="opt-icon">😌</span>特に期限はない・じっくり検討したい</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="prevStep()">← 戻る</button>
+      <button class="btn btn-primary" onclick="showResults()" id="btn-next-7" disabled>診断結果を見る 🔍</button>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-header">
+      <h2>📋 診断結果</h2>
+      <p>カードをタップすると申請要件・必要書類などの詳細を確認できます</p>
+    </div>
+    <div class="summary-box" id="summary-box"></div>
+    <div id="result-list"></div>
+    <button class="reset-btn" onclick="reset()">↩ 最初からやり直す</button>
+  </div>
+</div>
+
+<script>
+const subsidies = [
+  { name:"ものづくり・商業・サービス生産性向上促進補助金（ものづくり補助金）", type:"補助金", desc:"中小企業が革新的な製品・サービス開発や生産プロセスの改善を行うための設備投資を支援。補助率1/2〜2/3。", amount:"最大1,250万円（通常枠）／最大4,000万円（グローバル展開型）", tags:["設備投資","製造業向け","新製品開発","DX"],
+    detail:{ eligibility:["中小企業者・小規模事業者","直近過去3年分の課税所得の年平均が15億円以下","付加価値額+3%以上・給与支給総額+1.5%以上・事業場内最低賃金≧地域別最低賃金+30円の達成が要件"], rate:"補助率：中小企業 1/2、小規模事業者・再生事業者 2/3", limit:"通常枠：100万〜1,250万円 / グローバル展開型：最大4,000万円", documents:["事業計画書（様式1）","賃金引上げ計画の表明書","決算書（直近2期分）","法人税確定申告書","従業員数を示す書類","見積書（設備購入の場合）"], contact:"全国中小企業団体中央会（各都道府県の中小企業団体中央会）", url:"https://portal.monodukuri-hojo.jp/", notes:"公募は年数回。採択から補助事業実施期間は約10ヶ月。電子申請（jGrants）必須。認定支援機関の確認書が必要。"},
+    conditions:{ purpose:["設備投資","DX・IT化","新製品・新事業"], amount:["100〜500万","500〜1500万","1500万〜1億"], urgency:["半年","1年","余裕あり"], finance:["好調","横ばい","売上減少"] } },
+  { name:"IT導入補助金", type:"補助金", desc:"中小企業・小規模事業者のITツール導入を支援。会計ソフト・受発注・決済・ECなどのソフトウェア費用が対象。", amount:"最大450万円（複数プロセス型）", tags:["IT化","DX","業務効率化","会計・受発注"],
+    detail:{ eligibility:["中小企業者・小規模事業者","日本国内で事業を営む法人・個人事業主","IT導入支援事業者が提供・登録するITツールを導入すること"], rate:"補助率：1/2以内（通常枠）、2/3〜3/4（インボイス枠）", limit:"通常枠：5万〜150万円 / 複数プロセス枠：最大450万円 / インボイス枠：最大350万円", documents:["申請者情報（gBizIDプライム必須）","事業計画（IT導入支援事業者と共同作成）","決算書または確定申告書","導入するITツールの見積書"], contact:"一般社団法人サービスデザイン推進協議会（IT導入支援事業者経由で申請）", url:"https://www.it-hojo.jp/", notes:"IT導入支援事業者と一緒に申請する仕組み。gBizIDプライムの取得に2〜3週間かかるため早めに準備を。"},
+    conditions:{ purpose:["DX・IT化"], amount:["〜100万","100〜500万"], urgency:["半年","1年","余裕あり"] } },
+  { name:"事業再構築補助金", type:"補助金", desc:"ポストコロナ時代の変化に対応するため、新分野展開・業態転換・事業転換などに挑戦する企業を支援。", amount:"最大7,000万円（成長枠）", tags:["事業転換","新事業","大型投資"],
+    detail:{ eligibility:["中小企業者・中堅企業","売上が減少していること（コロナ禍前比較）または成長枠の場合は市場拡大要件","認定経営革新等支援機関と事業計画を策定すること","付加価値額を年率平均3%以上増加させる計画"], rate:"中小企業：1/2〜2/3　中堅企業：1/3〜1/2", limit:"成長枠：最大7,000万円 / グリーン成長枠：最大1.5億円", documents:["事業計画書","認定支援機関による確認書","決算書（直近2期分）","売上減少を示す書類","従業員数の確認書類"], contact:"中小企業庁（jGrantsによる電子申請）", url:"https://jigyou-saikouchiku.go.jp/", notes:"認定支援機関との連携が必須。補助対象は建物費・機械装置費・システム構築費等。事業計画の質が採択率に直結する。"},
+    conditions:{ purpose:["新製品・新事業","事業再構築"], amount:["500〜1500万","1500万〜1億","1億以上"], urgency:["半年","1年","余裕あり"], finance:["売上減少","赤字・困難"] } },
+  { name:"小規模事業者持続化補助金", type:"補助金", desc:"小規模事業者が経営計画を策定し、販路開拓・業務効率化に取り組む費用を支援。申請のハードルが低く使いやすい。", amount:"最大50万円（通常枠）／最大200万円（特別枠）", tags:["販路開拓","小規模","広告・HP","設備"],
+    detail:{ eligibility:["小規模事業者（製造業等：従業員20人以下、商業・サービス業：5人以下）","商工会議所または商工会の管轄地域内で事業を営んでいること","確定申告を行っていること"], rate:"補助率：2/3（通常枠）", limit:"通常枠：50万円 / 賃金引上げ枠・卒業枠・後継者支援枠・創業枠：200万円", documents:["経営計画書・補助事業計画書（様式2・3）","事業支援計画書（商工会議所が発行）","確定申告書（直近1期分）","補助事業に関する見積書"], contact:"日本商工会議所・全国商工会連合会（地域の商工会議所・商工会経由）", url:"https://r3.jizokukahojokin.info/", notes:"地域の商工会議所・商工会に相談してから申請するのが基本。補助対象はウェブサイト制作・チラシ・展示会出展・設備購入等。"},
+    conditions:{ purpose:["販路開拓","設備投資","DX・IT化"], amount:["〜100万","100〜500万"], employees:["1人","2〜5人","6〜20人"] } },
+  { name:"雇用調整助成金", type:"助成金", desc:"経済上の理由による事業活動の縮小を余儀なくされた事業主が、雇用維持を図るための休業等を行った場合に助成。", amount:"休業手当等の最大9/10（中小企業）", tags:["雇用維持","休業補償","経営悪化時"],
+    detail:{ eligibility:["雇用保険の適用事業主","経済上の理由による事業活動縮小（直近3ヶ月の売上等が前年同期比10%以上減少）","雇用保険被保険者を休業・教育訓練・出向させること"], rate:"中小企業：4/5（解雇等を行わない場合：9/10）上限8,490円/日", limit:"1人1日あたり最大8,490円", documents:["休業等実施計画届","支給申請書","出勤簿・タイムカード","賃金台帳","労使協定書（休業の場合）"], contact:"各都道府県労働局・ハローワーク", url:"https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/koyou/kyufukin/pageL07.html", notes:"計画届の提出→実施→申請の順番を守ることが重要。事前に労使協定の締結が必要。申請期限は翌月末まで。"},
+    conditions:{ finance:["売上減少","赤字・困難"], purpose:["運転資金"] } },
+  { name:"キャリアアップ助成金（正社員転換コース）", type:"助成金", desc:"非正規雇用労働者の正規雇用転換・処遇改善を支援。正社員転換コースは1人当たり最大80万円。", amount:"1人あたり最大80万円", tags:["人材","正規雇用","処遇改善"],
+    detail:{ eligibility:["雇用保険の適用事業主","キャリアアップ計画を作成・提出していること","転換前6ヶ月以上、有期雇用等で雇用していた労働者を正社員転換すること"], rate:"定額支給（1人57万円〜80万円）", limit:"1人57万円〜80万円（生産性要件達成で加算）", documents:["キャリアアップ計画書","労働協約または就業規則","雇用契約書（転換前後）","賃金台帳（転換前後6ヶ月分）","支給申請書"], contact:"各都道府県労働局・ハローワーク", url:"https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/part_haken/jigyounushi/career.html", notes:"転換前に必ずキャリアアップ計画を提出すること。転換後6ヶ月経過後に申請可能。就業規則に正社員転換制度の規定が必要。"},
+    conditions:{ purpose:["人材採用・育成"] } },
+  { name:"人材開発支援助成金", type:"助成金", desc:"従業員のスキルアップのための職業訓練を実施した事業主に、訓練費用や賃金の一部を助成。DX人材育成も対象。", amount:"訓練費用の最大75%・賃金助成あり", tags:["人材育成","研修","DXスキル"],
+    detail:{ eligibility:["雇用保険の適用事業主","訓練前にキャリアアップ計画等を提出していること","訓練は業務に関連したものであること（Off-JT）"], rate:"訓練費用：中小企業 45〜75% / 賃金助成：760円〜960円/時間（中小企業）", limit:"コースにより異なる（人材育成支援コース：1コース最大50万円等）", documents:["訓練計画届","受講証明書・領収書","賃金台帳","出勤簿","支給申請書"], contact:"各都道府県労働局・ハローワーク", url:"https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/koyou/kyufukin/d01-1.html", notes:"デジタル・DX関連の訓練は助成率が高い「デジタル人材育成支援コース」が利用可能。訓練前に計画届の提出が必須。"},
+    conditions:{ purpose:["人材採用・育成","DX・IT化"] } },
+  { name:"業務改善助成金", type:"助成金", desc:"最低賃金引上げに向けた取り組みを支援。設備投資等を行い、事業場内最低賃金を一定額以上引き上げた事業主を助成。", amount:"最大600万円", tags:["賃上げ","最低賃金","設備投資"],
+    detail:{ eligibility:["中小企業・小規模事業者","事業場内最低賃金と地域別最低賃金の差額が30円以内であること","引き上げ額に応じたコースを選択（30〜90円コース等）"], rate:"補助率：4/5（引上げ額30円以上）〜9/10（生産性要件達成時）", limit:"引き上げ人数・コースにより最大600万円", documents:["交付申請書","事業実施計画書","見積書（設備購入等）","賃金台帳（引き上げ前後）","就業規則の賃金規定"], contact:"各都道府県労働局（雇用環境・均等部（室））", url:"https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/roudoukijun/zigyonushi/shienjigyou/02.html", notes:"設備を先に購入してしまうと対象外になるため、必ず事前に申請すること。"},
+    conditions:{ purpose:["人材採用・育成","設備投資"], employees:["1人","2〜5人","6〜20人","21〜100人"] } },
+  { name:"日本政策金融公庫 一般貸付", type:"融資", desc:"中小企業・小規模事業者向けの基本的な融資制度。設備資金・運転資金いずれも対応。比較的低金利で利用しやすい。", amount:"設備・運転各4,800万円（合計7,200万円）まで", tags:["低金利","政府系","設備・運転資金"],
+    detail:{ eligibility:["中小企業基本法に定める中小企業者","同一事業を原則1年以上営んでいること","税金（国税・地方税）を完納していること"], rate:"基準金利：約1.5〜2.5%（変動・固定あり）※用途・担保の有無により異なる", limit:"設備資金：4,800万円 / 運転資金：4,800万円 / 合計上限：7,200万円", documents:["借入申込書","事業計画書","確定申告書（直近2期分）","試算表（最新のもの）","担保提供書類（必要な場合）"], contact:"日本政策金融公庫 各支店", url:"https://www.jfc.go.jp/n/finance/search/01_general_m.html", notes:"申し込みから融資実行まで約3〜4週間。担保・保証人なしでも利用できるケースあり。認定支援機関経由での申し込みでスムーズになる場合がある。"},
+    conditions:{ purpose:["設備投資","運転資金","DX・IT化"], urgency:["急ぎ","半年","1年"] } },
+  { name:"日本政策金融公庫 新創業融資制度", type:"融資", desc:"新たに事業を始める方や事業開始後間もない方への無担保・無保証人融資。創業期の資金調達に最適。", amount:"最大3,000万円（うち運転資金1,500万円）", tags:["創業","無担保","スタートアップ"],
+    detail:{ eligibility:["新たに事業を始める方、または事業開始後税務申告2期を終えていない方","自己資金が創業資金総額の10分の1以上あること"], rate:"基準金利：約2.0〜3.0%（無担保・無保証人のため通常より高め）", limit:"最大3,000万円（うち運転資金は1,500万円）", documents:["借入申込書","創業計画書（様式あり）","自己資金を証明する通帳コピー","見積書（設備購入の場合）"], contact:"日本政策金融公庫 各支店", url:"https://www.jfc.go.jp/n/finance/search/02_sinkikaigyou_m.html", notes:"自己資金の10分の1以上が要件。通帳の履歴で自己資金を証明することが重要。創業計画書の作り込みが審査を左右する。"},
+    conditions:{ purpose:["創業"], finance:["創業期"] } },
+  { name:"信用保証協会 セーフティネット保証（4号・5号）", type:"融資", desc:"売上減少等で資金繰りが困難な中小企業に対し、信用保証協会が保証する融資制度。通常の保証枠とは別枠で利用可能。", amount:"2億8,000万円（別枠）", tags:["資金繰り","売上減少時","別枠保証"],
+    detail:{ eligibility:["4号：自然災害・突発的な経済危機等で売上20%以上減少","5号：指定業種で売上5%以上減少（または利益率5%以上減少）","市区町村長の認定書が必要"], rate:"保証料率：0.85%程度 / 金利は金融機関による", limit:"一般保証とは別枠で2億8,000万円（4号・5号合計）", documents:["認定申請書（市区町村に提出）","売上減少を示す書類（試算表・売上台帳等）","信用保証委託申込書（金融機関経由）","決算書"], contact:"まず市区町村窓口で認定取得→金融機関・信用保証協会へ", url:"https://www.chusho.meti.go.jp/kinyu/sefu_net_4gou.htm", notes:"市区町村で認定を取得してから金融機関に持ち込む流れ。認定の有効期間は30日。資金繰りが急を要する場合は最優先で検討。"},
+    conditions:{ finance:["売上減少","赤字・困難"], purpose:["運転資金"], urgency:["急ぎ","半年"] } },
+  { name:"省エネ補助金（先進的省エネルギー投資促進支援事業）", type:"補助金", desc:"工場・事業場における先進的な省エネ設備への更新を支援。SIIが実施。製造業・大型設備に特に有効。", amount:"最大15億円", tags:["省エネ","設備更新","製造業","脱炭素"],
+    detail:{ eligibility:["工場・事業場を有する法人・個人事業主","省エネ診断を受けていること（原則）","補助対象設備の省エネ効果が一定基準以上であること"], rate:"1/3〜1/2（設備により異なる）", limit:"下限：100万円 / 上限：15億円", documents:["交付申請書","省エネ計画書（エネルギー削減量の試算含む）","設備の仕様書・見積書","工場のエネルギー使用量データ","決算書"], contact:"一般社団法人環境共創イニシアチブ（SII）", url:"https://sii.or.jp/", notes:"申請前に省エネ診断を受けると採択率が上がる。設備メーカーと連携して申請することが多い。"},
+    conditions:{ purpose:["省エネ・環境","設備投資"], industry:["製造業","建設業"], amount:["500〜1500万","1500万〜1億","1億以上"] } },
+  { name:"中小企業省力化投資補助金", type:"補助金", desc:"人手不足に悩む中小企業が、IoT・ロボット等の省力化製品を導入するための補助。カタログから製品を選んで申請できる。", amount:"最大1,500万円", tags:["IoT","ロボット","省力化","人手不足"],
+    detail:{ eligibility:["中小企業者・小規模事業者","人手不足の状態にあること","登録製品カタログから対象製品を選択すること"], rate:"中小企業：1/2 / 小規模事業者：2/3", limit:"従業員数により異なる（5人以下：200万円 / 6〜20人：500万円 / 21人以上：1,000万円）賃上げ達成で1,500万円", documents:["申請書","事業計画書","見積書（登録製品カタログから選択）","決算書","従業員数確認書類"], contact:"中小企業省力化投資補助事業事務局", url:"https://shoryokuka.smrj.go.jp/", notes:"カタログから製品を選ぶため計画書作成が比較的簡単。登録製品以外は対象外。"},
+    conditions:{ purpose:["設備投資","DX・IT化","人材採用・育成"], amount:["100〜500万","500〜1500万"] } },
+  { name:"早期経営改善計画策定支援", type:"補助金", desc:"認定支援機関と連携して早期経営改善計画を策定する費用を支援。資金繰り管理・採算管理の導入・改善に活用できる。", amount:"計画策定費用の2/3（上限20万円）", tags:["経営改善","早期支援","認定支援機関"],
+    detail:{ eligibility:["中小企業者・小規模事業者","認定経営革新等支援機関の支援を受けること","金融支援を必要としていない段階での活用が望ましい"], rate:"計画策定費用の2/3（上限20万円）、モニタリング費用の2/3（上限5万円）", limit:"計画策定：上限20万円 / モニタリング：上限5万円", documents:["早期経営改善計画書（認定支援機関と共同作成）","資金繰り表","損益改善計画"], contact:"中小企業活性化協議会（各都道府県）または認定支援機関経由", url:"https://www.chusho.meti.go.jp/keiei/kakushin/nintei/", notes:"深刻化する前の「早め」の相談・活用が重要。費用負担が少ないため経営改善の入口として使いやすい。"},
+    conditions:{ finance:["売上減少","赤字・困難","横ばい"], purpose:["事業再構築","運転資金"] } },
+  { name:"地域未来投資促進法に基づく税制優遇", type:"税制", desc:"地域経済牽引事業計画の承認を受けた企業に設備投資税制・固定資産税軽減等を適用。", amount:"設備取得価額の最大50%特別償却または最大4%税額控除", tags:["税制優遇","設備投資","地域貢献"],
+    detail:{ eligibility:["地域経済牽引事業計画の承認を受けた事業者","促進区域内で事業を実施すること","地域の特性を活かした高付加価値事業であること"], rate:"特別償却：取得価額の50% / 税額控除：取得価額の4%", limit:"上限なし（税額控除は法人税額の20%が上限）", documents:["地域経済牽引事業計画書（都道府県に提出）","設備投資計画書","地域への経済効果の試算"], contact:"各都道府県の担当部局（経済産業局と連携）", url:"https://www.meti.go.jp/policy/sme_chiiki/tiiki_mirai.html", notes:"計画承認に数ヶ月かかるため早めに着手が必要。地域貢献（雇用創出・地域産業との連携等）の計画が求められる。"},
+    conditions:{ purpose:["設備投資","新製品・新事業"], amount:["500〜1500万","1500万〜1億","1億以上"], certifications:["経営革新計画"] } },
+];
+
+const answers = {};
+const TOTAL = 7;
+let cur = 1;
+
+function updateProg() {
+  const pct = Math.round((cur-1)/TOTAL*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-pct').textContent = pct+'%';
+  document.getElementById('step-cur').textContent = cur;
+}
+
+function initStep(n) {
+  const el = document.querySelector(`[data-step="${n}"]`);
+  if (!el) return;
+  const key = el.querySelector('.options')?.dataset.key;
+  const type = el.querySelector('.options')?.dataset.type;
+  const btn = document.getElementById(`btn-next-${n}`);
+  el.querySelectorAll('.opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const v = opt.dataset.value;
+      if (type === 'single') {
+        el.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+        opt.classList.toggle('selected');
+        answers[key] = opt.classList.contains('selected') ? [v] : undefined;
+      } else {
+        if (v === 'なし') { el.querySelectorAll('.opt').forEach(o => o.classList.remove('selected')); opt.classList.add('selected'); answers[key] = ['なし']; }
+        else { el.querySelector('[data-value="なし"]')?.classList.remove('selected'); opt.classList.toggle('selected'); answers[key] = [...el.querySelectorAll('.opt.selected')].map(o => o.dataset.value); }
+      }
+      if (btn) btn.disabled = !answers[key] || answers[key].length === 0;
+    });
+  });
+}
+
+function nextStep() { document.querySelector(`[data-step="${cur}"]`).classList.remove('active'); cur++; document.querySelector(`[data-step="${cur}"]`).classList.add('active'); updateProg(); }
+function prevStep() { document.querySelector(`[data-step="${cur}"]`).classList.remove('active'); cur--; document.querySelector(`[data-step="${cur}"]`).classList.add('active'); updateProg(); }
+
+function score(s) {
+  let sc = 0; const c = s.conditions;
+  if (c.purpose && answers.purpose) sc += answers.purpose.filter(p => c.purpose.includes(p)).length * 3;
+  if (c.industry && answers.industry && c.industry.some(i => answers.industry.includes(i))) sc += 2;
+  if (c.employees && answers.employees && c.employees.some(e => answers.employees.includes(e))) sc += 1;
+  if (c.finance && answers.finance && c.finance.some(f => answers.finance.includes(f))) sc += 2;
+  if (c.amount && answers.amount && c.amount.some(a => answers.amount.includes(a))) sc += 1;
+  if (c.urgency && answers.urgency) { if (c.urgency.some(u => answers.urgency.includes(u))) sc += 1; else if (s.type==='融資' && answers.urgency.includes('急ぎ')) sc += 2; }
+  if (c.certifications && answers.certifications) sc += answers.certifications.filter(cert => c.certifications.includes(cert)).length;
+  return sc;
+}
+
+function detail(d) {
+  return `<div class="detail-section"><div class="detail-label">申請要件</div><ul class="detail-list">${d.eligibility.map(e=>`<li>${e}</li>`).join('')}</ul></div>
+<div class="detail-section"><div class="detail-label">補助率・金利</div><div class="detail-content">${d.rate}</div></div>
+<div class="detail-section"><div class="detail-label">補助上限・融資限度額</div><div class="detail-content">${d.limit}</div></div>
+<div class="detail-section"><div class="detail-label">主な必要書類</div><ul class="detail-list">${d.documents.map(doc=>`<li>${doc}</li>`).join('')}</ul></div>
+<div class="detail-section"><div class="detail-label">申請先・窓口</div><div class="detail-content">${d.contact}</div></div>
+<div class="detail-section"><div class="detail-label">注意点・ポイント</div><div class="detail-content">${d.notes}</div></div>
+<div class="detail-section"><div class="detail-label">公式サイト</div><a class="detail-link" href="${d.url}" target="_blank" rel="noopener">公式サイトを開く →</a></div>`;
+}
+
+function showResults() {
+  document.querySelector(`[data-step="${cur}"]`).classList.remove('active');
+  document.getElementById('prog-fill').style.width='100%';
+  document.getElementById('prog-pct').textContent='100%';
+  const scored = subsidies.map(s=>({...s,sc:score(s)})).filter(s=>s.sc>0).sort((a,b)=>b.sc-a.sc);
+  document.getElementById('summary-box').innerHTML=`<strong>業種：</strong>${answers.industry?.[0]||'－'} ／ <strong>従業員：</strong>${answers.employees?.[0]||'－'} ／ <strong>目的：</strong>${(answers.purpose||[]).join('・')||'－'}<br><strong>財務：</strong>${answers.finance?.[0]||'－'} ／ <strong>規模：</strong>${answers.amount?.[0]||'－'} ／ <strong>急ぎ度：</strong>${answers.urgency?.[0]||'－'}`;
+  const list = document.getElementById('result-list');
+  list.innerHTML='';
+  if (!scored.length) { list.innerHTML='<div class="no-results">条件に合う制度が見つかりませんでした。条件を変えて再度お試しください。</div>'; }
+  else {
+    const max = scored[0].sc;
+    scored.forEach(s => {
+      const pct = Math.round(s.sc/max*100);
+      const lv = pct>=80?'high':pct>=50?'mid':'low';
+      const dots = [1,2,3,4,5].map(d=>`<div class="dot ${s.sc>=d?'on':''}"></div>`).join('');
+      const card = document.createElement('div');
+      card.className=`result-card ${lv}`;
+      card.innerHTML=`<div class="card-summary"><div class="card-top"><div class="card-name">${s.name}</div><span class="card-type type-${s.type}">${s.type}</span></div><div class="card-desc">${s.desc}</div><div class="card-amount">💴 ${s.amount}</div><div class="card-tags">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div><div class="card-footer"><div class="match-score">適合度 <div class="score-dots">${dots}</div></div><div class="expand-hint">タップで詳細 ▾</div></div></div><div class="card-detail">${detail(s.detail)}</div>`;
+      card.addEventListener('click', () => { const o=card.classList.toggle('open'); card.querySelector('.expand-hint').textContent=o?'閉じる ▴':'タップで詳細 ▾'; });
+      list.appendChild(card);
+    });
+  }
+  document.getElementById('results').classList.add('active');
+}
+
+function reset() {
+  Object.keys(answers).forEach(k=>delete answers[k]); cur=1;
+  document.getElementById('results').classList.remove('active');
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.querySelector('[data-step="1"]').classList.add('active');
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
+  document.querySelectorAll('[id^="btn-next"]').forEach(b=>b.disabled=true);
+  updateProg();
+}
+
+for(let i=1;i<=TOTAL;i++) initStep(i);
+updateProg();
+</script>
+</body>
+</html>
