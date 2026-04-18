@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>名刺デザイン | 酒井健吾</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #e8e4dc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.card {
+  width: 540px;
+  height: 324px;
+  background: #f8f5ef;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.1);
+}
+.card-accent {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 8px;
+  background: #2d5a3d;
+}
+.card-deco {
+  position: absolute;
+  top: 0; right: 0;
+  width: 140px; height: 140px;
+  border-bottom: 1px solid rgba(45,90,61,0.1);
+  border-left: 1px solid rgba(45,90,61,0.1);
+  border-radius: 0 0 0 100%;
+}
+.card-inner {
+  position: absolute;
+  inset: 0;
+  padding: 28px 100px 28px 24px;
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 0 24px;
+  align-items: center;
+}
+.photo-area {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  background: #e0dbd0;
+  border: 3px solid #2d5a3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.photo-placeholder {
+  font-size: 0.5rem;
+  color: #9d9080;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  line-height: 1.6;
+}
+.photo-area img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.text-area { display: flex; flex-direction: column; justify-content: center; }
+.catchcopy-en {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5rem;
+  color: #a8d8bc;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+.catchcopy {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d5a3d;
+  letter-spacing: 0.15em;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1c1a17;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.name-en {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  color: #9d9080;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+.divider {
+  width: 28px; height: 2px;
+  background: #2d5a3d;
+  margin-bottom: 8px;
+}
+.title {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: #6b6255;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 6px;
+}
+.contact-icon {
+  width: 13px; height: 13px;
+  background: #2d5a3d;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.contact-icon svg { width: 7px; height: 7px; fill: white; }
+.contact-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.56rem;
+  color: #6b6255;
+  letter-spacing: 0.04em;
+}
+.cert-row {
+  display: flex;
+  gap: 8px;
+}
+.cert-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.46rem;
+  color: #4a8c60;
+  letter-spacing: 0.06em;
+}
+/* QRコードエリア */
+.qr-area {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.qr-area canvas {
+  display: block;
+}
+.qr-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.4rem;
+  color: #9d9080;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.note {
+  margin-top: 2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: #888;
+  letter-spacing: 0.08em;
+  text-align: center;
+  line-height: 1.9;
+}
+</style>
+</head>
+<body>
+
+<div class="label">Business Card Preview — 91mm × 55mm</div>
+
+<div class="card">
+  <div class="card-accent"></div>
+  <div class="card-deco"></div>
+
+  <div class="card-inner">
+    <div class="photo-area">
+      <!-- 顔写真: <img src="photo.jpg" alt="酒井健吾"> -->
+      <div class="photo-placeholder">顔写真<br>をここに</div>
+    </div>
+
+    <div class="text-area">
+      <span class="catchcopy-en">Consultant / Data Scientist</span>
+      <div class="catchcopy">現場から 利益を上げる 診断士</div>
+      <div class="name">酒井 健吾</div>
+      <div class="name-en">KENGO SAKAI</div>
+      <div class="divider"></div>
+      <div class="title">中小企業診断士｜製造業データサイエンティスト</div>
+      <div class="contact">
+        <div class="contact-icon">
+          <svg viewBox="0 0 20 20"><path d="M2 4a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4zm2 0v.01L10 11 16 4H4zm0 2.236V16h12V6.236l-6 5.5-6-5.5z"/></svg>
+        </div>
+        <div class="contact-text">oshmsakaikufa@gmail.com</div>
+      </div>
+      <div class="cert-row">
+        <span class="cert-tag">統計検定 準1級</span>
+        <span class="cert-tag">TOEIC 880</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="qr-area">
+    <canvas id="qrCanvas"></canvas>
+    <div class="qr-label">お問い合わせ</div>
+  </div>
+</div>
+
+<div class="note">
+  ※ 顔写真を追加する場合は photo-area 内のコメントを外して写真ファイルを指定してください<br>
+  ※ 印刷時は A4 用紙に拡大・縮小なしで印刷し、切り取ってください
+</div>
+
+<script>
+// QR生成（qrcode-generator ライブラリをインライン実装の代わりにCDN使用）
+(function(){
+  // シンプルなQR生成をGoogle Charts APIで取得してCanvasに描画
+  const url = "https://kengo0127.github.io/shindan_tools/contact.html";
+  const size = 60;
+  const canvas = document.getElementById("qrCanvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+
+  // 背景
+  ctx.fillStyle = "#f8f5ef";
+  ctx.fillRect(0, 0, size, size);
+
+  // Google Charts QR API経由で画像取得してCanvasに描画
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, size, size);
+  };
+  img.onerror = function() {
+    // フォールバック: テキスト表示
+    ctx.fillStyle = "#2d5a3d";
+    ctx.font = "5px monospace";
+    ctx.fillText("QR", 20, 30);
+  };
+  img.src = "https://chart.googleapis.com/chart?chs=" + size + "x" + size +
+    "&cht=qr&chl=" + encodeURIComponent(url) +
+    "&chco=2d5a3d&chf=bg,s,f8f5ef";
+})();
+</script>
+</body>
+</html>
