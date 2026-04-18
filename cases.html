@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>実績 | 酒井健吾</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --ink:#1c1a17; --paper:#f8f5ef; --paper2:#f0ece2; --border:#d8d0bc; --accent:#2d5a3d; --accent2:#4a8c60; --text:#2a2520; --text-muted:#6b6255; --text-dim:#9d9080; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--paper); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:300; line-height:1.8; }
+nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(248,245,239,0.96); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:0 2rem; height:56px; display:flex; align-items:center; justify-content:space-between; }
+.nav-logo { font-family:'Shippori Mincho',serif; font-size:0.9rem; font-weight:600; color:var(--accent); letter-spacing:0.05em; text-decoration:none; }
+.nav-links { display:flex; gap:1.8rem; list-style:none; }
+.nav-links a { font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); text-decoration:none; transition:color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color:var(--accent); }
+@media (max-width:600px) { .nav-links { display:none; } }
+
+.page-hero { padding:6rem 2rem 3rem; border-bottom:1px solid var(--border); }
+.page-hero-inner { max-width:860px; margin:0 auto; }
+.page-label { font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:0.3em; color:var(--accent2); text-transform:uppercase; margin-bottom:0.5rem; }
+.page-title { font-family:'Shippori Mincho',serif; font-size:clamp(1.6rem,4vw,2.4rem); font-weight:700; color:var(--ink); margin-bottom:0.6rem; }
+.page-desc { font-size:0.85rem; color:var(--text-muted); line-height:2; max-width:500px; }
+
+.content { padding:3rem 2rem 5rem; }
+.content-inner { max-width:860px; margin:0 auto; }
+.back-link { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.78rem; color:var(--text-muted); text-decoration:none; margin-bottom:2rem; }
+.back-link:hover { color:var(--accent); }
+
+.stat-bar { display:flex; gap:2.5rem; flex-wrap:wrap; margin-bottom:2.5rem; padding:1.5rem; background:white; border:1px solid var(--border); border-radius:3px; }
+.stat-num { font-family:'Shippori Mincho',serif; font-size:2rem; font-weight:700; color:var(--accent); line-height:1; }
+.stat-label { font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--text-dim); letter-spacing:0.15em; text-transform:uppercase; margin-top:0.2rem; }
+
+.cases-list { display:flex; flex-direction:column; gap:1.5rem; }
+.case-card { background:white; border:1px solid var(--border); border-radius:3px; padding:1.8rem; display:grid; grid-template-columns:auto 1fr; gap:1.5rem; transition:border-color 0.2s; }
+.case-card:hover { border-color:var(--accent2); }
+.case-num { font-family:'Shippori Mincho',serif; font-size:2rem; font-weight:700; color:var(--border); line-height:1; padding-top:0.2rem; }
+.case-industry { font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:0.15em; color:var(--accent2); text-transform:uppercase; margin-bottom:0.3rem; }
+.case-title { font-family:'Shippori Mincho',serif; font-size:0.95rem; font-weight:600; color:var(--ink); margin-bottom:0.6rem; line-height:1.5; }
+.case-desc { font-size:0.8rem; color:var(--text-muted); line-height:1.9; margin-bottom:0.8rem; }
+.case-voice { font-size:0.78rem; color:var(--accent); background:rgba(45,90,61,0.05); border-left:2px solid var(--accent2); padding:0.5rem 0.8rem; line-height:1.8; font-style:italic; }
+@media (max-width:500px) { .case-card { grid-template-columns:1fr; } .case-num { display:none; } }
+
+footer { border-top:1px solid var(--border); padding:1.8rem 2rem; text-align:center; font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--text-dim); letter-spacing:0.1em; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">酒井 健吾</a>
+  <ul class="nav-links">
+    <li><a href="services.html">サービス</a></li>
+    <li><a href="cases.html" class="active">実績</a></li>
+    <li><a href="profile.html">プロフィール</a></li>
+    <li><a href="contact.html">お問い合わせ</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-label">Cases</div>
+    <h1 class="page-title">支援実績</h1>
+    <p class="page-desc">医療・宿泊・製造など幅広い分野でのデータ分析支援実績をご紹介します。</p>
+  </div>
+</div>
+
+<div class="content">
+  <div class="content-inner">
+    <a href="index.html" class="back-link">← トップへ戻る</a>
+
+    <div class="stat-bar">
+      <div><div class="stat-num">35+</div><div class="stat-label">累計受注件数</div></div>
+      <div><div class="stat-num">5.0</div><div class="stat-label">顧客評価（★5.0満点）</div></div>
+      <div><div class="stat-num">3+</div><div class="stat-label">業種</div></div>
+    </div>
+
+    <div class="cases-list">
+      <div class="case-card">
+        <div class="case-num">01</div>
+        <div>
+          <div class="case-industry">医療機関</div>
+          <div class="case-title">X線撮影装置の照射量バラつき分析と技術標準化支援</div>
+          <div class="case-desc">ポータブルX線撮影機の照射量バラつきの原因を統計解析で特定。なぜなぜ分析で因子を洗い出し、各因子の影響度を定量化。撮影技術の高い個人のノウハウをマニュアル化し、技術の底上げ・標準化を提案しました。</div>
+          <div class="case-voice">「難解な統計解析をわかりやすく説明してもらい、よく理解できた。この結果はジャーナルへの掲載を検討していく」</div>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-num">02</div>
+        <div>
+          <div class="case-industry">旅館業</div>
+          <div class="case-title">宿泊データを活用した閑散期の稼働率改善・収益最大化支援</div>
+          <div class="case-desc">閑散期における稼働率低下が課題。観光庁公開データと自社の宿泊データ（ADR・稼働率・RevPAR）を活用し、①閑散期の価格設定方針、②潜在ターゲット層の明確化、③データ利活用戦略の3点を提案。継続支援へと発展しました。</div>
+          <div class="case-voice">「ADRや稼働率をビジネスに繋げる考え方を知って、目からウロコが出た」</div>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-num">03</div>
+        <div>
+          <div class="case-industry">各種業種（ococonala）</div>
+          <div class="case-title">データ分析・統計解析支援 累計35件・評価★5.0</div>
+          <div class="case-desc">製造業・医療・マーケティング・研究など幅広い分野でのデータ分析支援。アンケート分析・品質改善・機械学習モデル構築・卒業研究サポートなど、多様なご依頼に対応してきました。</div>
+          <div class="case-voice">「こんな結果でした」では終わらない、付加価値に繋がる分析・提案を徹底しています。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 Kengo Sakai — 中小企業診断士 ／ データサイエンティスト</footer>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>サービス | 酒井健吾</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --ink:#1c1a17; --paper:#f8f5ef; --paper2:#f0ece2; --border:#d8d0bc; --accent:#2d5a3d; --accent2:#4a8c60; --text:#2a2520; --text-muted:#6b6255; --text-dim:#9d9080; --gold:#c8a84b; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--paper); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:300; line-height:1.8; }
+nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(248,245,239,0.96); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:0 2rem; height:56px; display:flex; align-items:center; justify-content:space-between; }
+.nav-logo { font-family:'Shippori Mincho',serif; font-size:0.9rem; font-weight:600; color:var(--accent); letter-spacing:0.05em; text-decoration:none; }
+.nav-links { display:flex; gap:1.8rem; list-style:none; }
+.nav-links a { font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); text-decoration:none; transition:color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color:var(--accent); }
+@media (max-width:600px) { .nav-links { display:none; } }
+
+.page-hero { padding: 6rem 2rem 3rem; border-bottom: 1px solid var(--border); }
+.page-hero-inner { max-width: 860px; margin: 0 auto; }
+.page-label { font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:0.3em; color:var(--accent2); text-transform:uppercase; margin-bottom:0.5rem; }
+.page-title { font-family:'Shippori Mincho',serif; font-size:clamp(1.6rem,4vw,2.4rem); font-weight:700; color:var(--ink); margin-bottom:0.6rem; }
+.page-desc { font-size:0.85rem; color:var(--text-muted); line-height:2; max-width:500px; }
+
+.content { padding: 3rem 2rem 5rem; }
+.content-inner { max-width: 860px; margin: 0 auto; }
+
+.services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.2rem; margin-bottom:3rem; }
+.service-card { background:white; border:1px solid var(--border); border-radius:3px; padding:1.6rem; transition:border-color 0.2s; }
+.service-card:hover { border-color:var(--accent2); }
+.service-card.featured { border-color:var(--accent); background:linear-gradient(135deg,#f0faf4 0%,white 60%); }
+.service-header { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:0.8rem; }
+.service-icon { font-size:1.6rem; margin-bottom:0.8rem; }
+.service-name { font-family:'Shippori Mincho',serif; font-size:0.95rem; font-weight:600; color:var(--ink); line-height:1.5; }
+.service-price { font-family:'JetBrains Mono',monospace; font-size:0.62rem; color:var(--accent); white-space:nowrap; padding:0.2rem 0.5rem; background:rgba(45,90,61,0.08); border-radius:2px; flex-shrink:0; }
+.service-desc { font-size:0.8rem; color:var(--text-muted); line-height:1.9; }
+.tool-link { display:inline-flex; align-items:center; gap:0.5rem; margin-top:1rem; padding:0.55rem 1rem; background:var(--accent); color:white; border-radius:2px; font-size:0.78rem; font-weight:500; text-decoration:none; letter-spacing:0.03em; transition:background 0.2s; }
+.tool-link:hover { background:var(--accent2); }
+
+.fee-section { background:var(--paper2); border:1px solid var(--border); border-radius:3px; padding:2rem; }
+.fee-title { font-family:'Shippori Mincho',serif; font-size:1rem; font-weight:600; color:var(--ink); margin-bottom:1.2rem; }
+.fee-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+.fee-table th { background:var(--accent); color:white; padding:0.6rem 1rem; text-align:left; font-weight:500; font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:0.1em; }
+.fee-table td { padding:0.7rem 1rem; border-bottom:1px solid var(--border); color:var(--text-muted); background:white; }
+.fee-table tr:last-child td { border-bottom:none; }
+.fee-table td:last-child { color:var(--accent); font-weight:500; font-family:'JetBrains Mono',monospace; font-size:0.75rem; }
+
+.back-link { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.78rem; color:var(--text-muted); text-decoration:none; margin-bottom:2rem; }
+.back-link:hover { color:var(--accent); }
+
+footer { border-top:1px solid var(--border); padding:1.8rem 2rem; text-align:center; font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--text-dim); letter-spacing:0.1em; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">酒井 健吾</a>
+  <ul class="nav-links">
+    <li><a href="services.html" class="active">サービス</a></li>
+    <li><a href="cases.html">実績</a></li>
+    <li><a href="profile.html">プロフィール</a></li>
+    <li><a href="contact.html">お問い合わせ</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-label">Services</div>
+    <h1 class="page-title">サービス内容</h1>
+    <p class="page-desc">課題の内容に応じて最適な支援内容・料金をご提案します。まずはお気軽にご相談ください。</p>
+  </div>
+</div>
+
+<div class="content">
+  <div class="content-inner">
+    <a href="index.html" class="back-link">← トップへ戻る</a>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">📊</div>
+        <div class="service-header">
+          <div class="service-name">データ分析・統計解析支援</div>
+          <div class="service-price">月50,000円〜</div>
+        </div>
+        <div class="service-desc">アンケート分析・品質改善・売上予測・顧客分析など。「データはあるが使い方がわからない」という段階からサポートします。Python・Excelどちらでも対応。</div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🏢</div>
+        <div class="service-header">
+          <div class="service-name">経営診断・改善提案</div>
+          <div class="service-price">要相談</div>
+        </div>
+        <div class="service-desc">財務分析・SWOT分析・事業フローの可視化を通じた経営診断と戦略提言。データを活用した根拠ある改善計画を策定します。</div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">💡</div>
+        <div class="service-header">
+          <div class="service-name">DX推進・IT化支援</div>
+          <div class="service-price">要相談</div>
+        </div>
+        <div class="service-desc">製造業・中小企業のDX推進を現場目線でサポート。要件定義から導入支援まで、IT導入補助金の活用も含めてトータルで対応します。</div>
+      </div>
+
+      <div class="service-card featured">
+        <div class="service-icon">📝</div>
+        <div class="service-header">
+          <div class="service-name">補助金申請支援</div>
+          <div class="service-price">成功報酬型も可</div>
+        </div>
+        <div class="service-desc">ものづくり補助金・IT導入補助金・持続化補助金など。事業計画書の作成から申請まで伴走支援。まずは下のツールで活用できる制度を確認してみてください。</div>
+        <a href="https://kengo0127.github.io/shindan_tools/subsidy_tool.html" target="_blank" class="tool-link">🔍 補助金・助成金 提案ツールを使う →</a>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">💬</div>
+        <div class="service-header">
+          <div class="service-name">スポット相談</div>
+          <div class="service-price">月50,000円〜（要相談）</div>
+        </div>
+        <div class="service-desc">「まず話を聞いてほしい」という段階でもOK。経営課題・データ活用・補助金・DXなどについて気軽にご相談いただけます。</div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🤝</div>
+        <div class="service-header">
+          <div class="service-name">顧問契約（月次支援）</div>
+          <div class="service-price">月30,000円〜</div>
+        </div>
+        <div class="service-desc">継続的な経営支援・データ活用推進を月額制でサポート。定期的な状況確認・相談対応を通じて経営改善を伴走します。</div>
+      </div>
+    </div>
+
+    <div class="fee-section">
+      <div class="fee-title">料金の目安</div>
+      <table class="fee-table">
+        <thead><tr><th>サービス</th><th>料金目安</th></tr></thead>
+        <tbody>
+          <tr><td>スポット相談・データ分析支援</td><td>月50,000円〜（要相談）</td></tr>
+          <tr><td>経営診断・改善提案</td><td>要相談</td></tr>
+          <tr><td>補助金申請支援</td><td>成功報酬型も可</td></tr>
+          <tr><td>顧問契約（月次支援）</td><td>月30,000円〜</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 Kengo Sakai — 中小企業診断士 ／ データサイエンティスト</footer>
+</body>
+</html>
