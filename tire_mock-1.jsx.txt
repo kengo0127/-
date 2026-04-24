@@ -1,0 +1,345 @@
+import { useState, useEffect } from "react";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ReferenceLine, ResponsiveContainer, Area, AreaChart, ComposedChart, Legend
+} from "recharts";
+
+// ── ガウス分布生成 ──────────────────────────────────────────────
+function gaussian(x, mu, sigma) {
+  return (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - mu) / sigma) ** 2);
+}
+function mixedGaussian(x, components) {
+  return components.reduce((s, { mu, sigma, w }) => s + w * gaussian(x, mu, sigma), 0);
+}
+function range(start, end, step) {
+  const arr = [];
+  for (let v = start; v <= end; v += step) arr.push(v);
+  return arr;
+}
+function calcPercentile(xs, ys, p) {
+  const total = ys.reduce((a, b) => a + b, 0);
+  let cum = 0;
+  for (let i = 0; i < xs.length; i++) {
+    cum += ys[i];
+    if (cum / total >= p) return xs[i];
+  }
+  return xs[xs.length - 1];
+}
+
+// ── 速度分布データ ──────────────────────────────────────────────
+const speedXsHighway = range(40, 130, 0.5);
+const speedYsHighway = speedXsHighway.map(x =>
+  mixedGaussian(x, [{ mu: 80, sigma: 8, w: 0.5 }, { mu: 95, sigma: 7, w: 0.5 }])
+);
+const speedHighway = speedXsHighway.map((x, i) => ({ x, y: speedYsHighway[i] }));
+
+const speedXsLocal = range(0, 90, 0.5);
+const speedYsLocal = speedXsLocal.map(x =>
+  mixedGaussian(x, [{ mu: 20, sigma: 6, w: 0.33 }, { mu: 40, sigma: 7, w: 0.34 }, { mu: 60, sigma: 8, w: 0.33 }])
+);
+const speedLocal = speedXsLocal.map((x, i) => ({ x, y: speedYsLocal[i] }));
+
+// ── 加速度分布データ ────────────────────────────────────────────
+const accXs = range(-3, 3, 0.05);
+const accYsHighway = accXs.map(x => gaussian(x, 0, 0.4));
+const accYsLocal   = accXs.map(x => gaussian(x, 0, 1.0));
+const accHighway = accXs.map((x, i) => ({ x, y: accYsHighway[i] }));
+const accLocal   = accXs.map((x, i) => ({ x, y: accYsLocal[i] }));
+
+// ── 統計値計算 ──────────────────────────────────────────────────
+function stats(xs, ys) {
+  const total = ys.reduce((a, b) => a + b, 0);
+  const mean  = xs.reduce((s, x, i) => s + x * ys[i], 0) / total;
+  const lo    = calcPercentile(xs, ys, 0.05);
+  const hi    = calcPercentile(xs, ys, 0.95);
+  return { mean: +mean.toFixed(1), lo: +lo.toFixed(1), hi: +hi.toFixed(1) };
+}
+const sSpeedHW  = stats(speedXsHighway, speedYsHighway);
+const sSpeedLoc = stats(speedXsLocal,   speedYsLocal);
+const sAccHW    = stats(accXs, accYsHighway);
+const sAccLoc   = stats(accXs, accYsLocal);
+
+// ── 共通カラーパレット ──────────────────────────────────────────
+const C = {
+  bg:      "#0f1117",
+  surface: "#181c27",
+  card:    "#1e2334",
+  border:  "#2a3050",
+  accent:  "#3b82f6",
+  accentG: "#10b981",
+  text:    "#e2e8f0",
+  muted:   "#64748b",
+  warn:    "#ef4444",
+};
+
+// ── フォント ────────────────────────────────────────────────────
+const fontLink = "https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Sans+JP:wght@300;400;500&display=swap";
+
+// ── DistributionChart ───────────────────────────────────────────
+function DistributionChart({ data, statsVal, xLabel, color, domain }) {
+  const { mean, lo, hi } = statsVal;
+  return (
+    <div style={{ width: "100%", height: 200 }}>
+      <ResponsiveContainer>
+        <ComposedChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+          <defs>
+            <linearGradient id={`g${color.replace("#","")}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%"  stopColor={color} stopOpacity={0.4} />
+              <stop offset="95%" stopColor={color} stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+          <XAxis dataKey="x" domain={domain} tickCount={6}
+            tick={{ fill: C.muted, fontSize: 11 }} label={{ value: xLabel, position: "insideBottom", offset: -2, fill: C.muted, fontSize: 11 }} />
+          <YAxis hide />
+          <Area type="monotone" dataKey="y" stroke={color} strokeWidth={2}
+            fill={`url(#g${color.replace("#","")})`} dot={false} />
+          <ReferenceLine x={mean} stroke={color} strokeWidth={2} strokeDasharray="4 2"
+            label={{ value: `μ=${mean}`, position: "top", fill: color, fontSize: 11, fontWeight: 700 }} />
+          <ReferenceLine x={lo} stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="3 3"
+            label={{ value: `5%\n${lo}`, position: "insideTopLeft", fill: "#f59e0b", fontSize: 10 }} />
+          <ReferenceLine x={hi} stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="3 3"
+            label={{ value: `95%\n${hi}`, position: "insideTopRight", fill: "#f59e0b", fontSize: 10 }} />
+        </ComposedChart>
+      </ResponsiveContainer>
+      <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 4 }}>
+        <Chip label={`平均 ${mean}`} color={color} />
+        <Chip label={`90%区間  ${lo} ～ ${hi}`} color="#f59e0b" />
+      </div>
+    </div>
+  );
+}
+
+function Chip({ label, color }) {
+  return (
+    <span style={{ fontSize: 11, color, background: color + "22", border: `1px solid ${color}55`,
+      borderRadius: 4, padding: "2px 8px", fontWeight: 600 }}>
+      {label}
+    </span>
+  );
+}
+
+// ── Page 1 ─────────────────────────────────────────────────────
+function Page1({ onNext }) {
+  const [form, setForm] = useState({
+    vehicleType: "", load: "", origin: "", dest: "", highway1: "", highway2: ""
+  });
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const ready = form.vehicleType && form.load && form.origin && form.dest && form.highway1;
+
+  const Select = ({ k, label, opts }) => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <label style={{ fontSize: 12, color: C.muted, letterSpacing: "0.08em", textTransform: "uppercase" }}>{label}</label>
+      <select value={form[k]} onChange={e => set(k, e.target.value)}
+        style={{ background: C.card, color: C.text, border: `1px solid ${C.border}`, borderRadius: 8,
+          padding: "10px 14px", fontSize: 14, outline: "none", cursor: "pointer",
+          appearance: "none", WebkitAppearance: "none" }}>
+        <option value="">選択してください</option>
+        {opts.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: "40px 24px" }}>
+      <div style={{ marginBottom: 40 }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.2em", color: C.accent, marginBottom: 8, fontFamily: "Syne, sans-serif" }}>
+          STEP 01
+        </div>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, margin: 0, fontFamily: "Syne, sans-serif", lineHeight: 1.2 }}>
+          走行条件を<br />入力してください
+        </h1>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <Select k="vehicleType" label="車型" opts={["低床4軸", "3軸", "2軸"]} />
+        <Select k="load" label="平均積載荷重 (kg)" opts={["5,000", "8,000", "12,000"]} />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <Select k="origin" label="出発地区" opts={["関東", "北陸", "関西", "東北", "中部", "中国", "四国", "九州"]} />
+          <Select k="dest"   label="目的地区" opts={["関東", "北陸", "関西", "東北", "中部", "中国", "四国", "九州"]} />
+        </div>
+        <div>
+          <label style={{ fontSize: 12, color: C.muted, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            使用高速道路（最大2つ）
+          </label>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 6 }}>
+            <Select k="highway1" label="" opts={["東名", "名神", "北陸道", "関越", "東北道", "中央道", "新東名", "新名神"]} />
+            <Select k="highway2" label="" opts={["（なし）", "東名", "名神", "北陸道", "関越", "東北道", "中央道", "新東名", "新名神"]} />
+          </div>
+        </div>
+
+        <button onClick={onNext} disabled={!ready}
+          style={{ marginTop: 12, padding: "16px 0", borderRadius: 10, border: "none", cursor: ready ? "pointer" : "not-allowed",
+            background: ready ? C.accent : C.border, color: ready ? "#fff" : C.muted,
+            fontSize: 15, fontWeight: 700, fontFamily: "Syne, sans-serif", letterSpacing: "0.05em",
+            transition: "all 0.2s", boxShadow: ready ? `0 0 24px ${C.accent}55` : "none" }}>
+          計　算
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Page 2 ─────────────────────────────────────────────────────
+function Page2({ onNext }) {
+  const Section = ({ title, speedData, speedStats, accData, accStats, speedColor, accColor, speedDomain }) => (
+    <div style={{ background: C.card, borderRadius: 12, border: `1px solid ${C.border}`, padding: "20px 24px" }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: C.text, fontFamily: "Syne, sans-serif",
+        marginBottom: 16, letterSpacing: "0.05em" }}>
+        【{title}】
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div>
+          <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>速度分布（km/h）</div>
+          <DistributionChart data={speedData} statsVal={speedStats}
+            xLabel="km/h" color={speedColor} domain={speedDomain} />
+        </div>
+        <div>
+          <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>加速度分布（m/s²）</div>
+          <DistributionChart data={accData} statsVal={accStats}
+            xLabel="m/s²" color={accColor} domain={[-3, 3]} />
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 800, margin: "0 auto", padding: "32px 24px" }}>
+      {/* 警告バナー */}
+      <div style={{ background: C.warn, borderRadius: 8, padding: "12px 20px", marginBottom: 28,
+        display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontSize: 18 }}>🔒</span>
+        <span style={{ color: "#fff", fontWeight: 700, fontSize: 13, fontFamily: "Syne, sans-serif", letterSpacing: "0.05em" }}>
+          UIには表示されないページ — 内部ロジック確認用
+        </span>
+      </div>
+
+      <div style={{ fontSize: 11, letterSpacing: "0.2em", color: C.accent, marginBottom: 8, fontFamily: "Syne, sans-serif" }}>
+        STEP 02 — 走行データ分析
+      </div>
+      <h2 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: "0 0 24px", fontFamily: "Syne, sans-serif" }}>
+        速度・加速度の分布
+      </h2>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <Section title="高速" speedData={speedHighway} speedStats={sSpeedHW}
+          accData={accHighway} accStats={sAccHW}
+          speedColor={C.accent} accColor="#a78bfa" speedDomain={[40, 130]} />
+        <Section title="地場" speedData={speedLocal} speedStats={sSpeedLoc}
+          accData={accLocal} accStats={sAccLoc}
+          speedColor={C.accentG} accColor="#fb923c" speedDomain={[0, 90]} />
+      </div>
+
+      <button onClick={onNext}
+        style={{ marginTop: 28, width: "100%", padding: "16px 0", borderRadius: 10, border: "none",
+          cursor: "pointer", background: C.accent, color: "#fff",
+          fontSize: 15, fontWeight: 700, fontFamily: "Syne, sans-serif", letterSpacing: "0.05em",
+          boxShadow: `0 0 24px ${C.accent}55`, transition: "all 0.2s" }}>
+        次　へ
+      </button>
+    </div>
+  );
+}
+
+// ── Page 3 ─────────────────────────────────────────────────────
+function Page3({ onReset }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setShow(true), 100); return () => clearTimeout(t); }, []);
+
+  return (
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: "60px 24px", textAlign: "center" }}>
+      <div style={{ fontSize: 11, letterSpacing: "0.2em", color: C.accentG, marginBottom: 12, fontFamily: "Syne, sans-serif" }}>
+        STEP 03 — 結果
+      </div>
+      <h2 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: "0 0 48px", fontFamily: "Syne, sans-serif" }}>
+        タイヤ履き替え効果
+      </h2>
+
+      {/* メイン結果カード */}
+      <div style={{
+        background: `linear-gradient(135deg, ${C.card} 0%, #1a2540 100%)`,
+        border: `2px solid ${C.accentG}`,
+        borderRadius: 16, padding: "40px 32px", marginBottom: 24,
+        boxShadow: `0 0 40px ${C.accentG}33`,
+        opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(20px)",
+        transition: "all 0.6s ease"
+      }}>
+        <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>1台・1ヶ月あたりの削減効果</div>
+        <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: 52, color: C.accentG, lineHeight: 1 }}>
+          ¥35,720
+        </div>
+        <div style={{ marginTop: 8, fontSize: 13, color: C.text, fontWeight: 500 }}>
+          履き替え効果
+        </div>
+      </div>
+
+      {/* 90%区間カード */}
+      <div style={{
+        background: C.card, border: `1px solid ${C.border}`, borderRadius: 12,
+        padding: "24px 28px", marginBottom: 40,
+        opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(20px)",
+        transition: "all 0.6s ease 0.2s"
+      }}>
+        <div style={{ fontSize: 12, color: C.muted, marginBottom: 10, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          90%予測区間
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 11, color: "#f59e0b", marginBottom: 4 }}>下限</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: C.text, fontFamily: "Syne, sans-serif" }}>¥30,000</div>
+          </div>
+          <div style={{ fontSize: 24, color: C.muted }}>〜</div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 11, color: "#f59e0b", marginBottom: 4 }}>上限</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: C.text, fontFamily: "Syne, sans-serif" }}>¥43,000</div>
+          </div>
+        </div>
+        <div style={{ marginTop: 12, fontSize: 12, color: C.muted }}>
+          実際の削減額は走行条件により変動します
+        </div>
+      </div>
+
+      <button onClick={onReset}
+        style={{ padding: "14px 40px", borderRadius: 10, border: `1px solid ${C.border}`,
+          background: "transparent", color: C.muted, fontSize: 14, cursor: "pointer",
+          fontFamily: "Syne, sans-serif", transition: "all 0.2s" }}>
+        最初からやり直す
+      </button>
+    </div>
+  );
+}
+
+// ── App ─────────────────────────────────────────────────────────
+export default function App() {
+  const [page, setPage] = useState(1);
+
+  return (
+    <>
+      <link href={fontLink} rel="stylesheet" />
+      <div style={{ minHeight: "100vh", background: C.bg, color: C.text,
+        fontFamily: "'IBM Plex Sans JP', sans-serif" }}>
+
+        {/* ヘッダー */}
+        <div style={{ borderBottom: `1px solid ${C.border}`, padding: "14px 24px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: C.surface, position: "sticky", top: 0, zIndex: 100 }}>
+          <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: 15, color: C.text, letterSpacing: "0.05em" }}>
+            TIRE<span style={{ color: C.accent }}>FX</span>
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[1,2,3].map(n => (
+              <div key={n} style={{ width: 24, height: 4, borderRadius: 2,
+                background: page >= n ? C.accent : C.border,
+                transition: "background 0.3s" }} />
+            ))}
+          </div>
+        </div>
+
+        {/* ページ */}
+        {page === 1 && <Page1 onNext={() => setPage(2)} />}
+        {page === 2 && <Page2 onNext={() => setPage(3)} />}
+        {page === 3 && <Page3 onReset={() => setPage(1)} />}
+      </div>
+    </>
+  );
+}
