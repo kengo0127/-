@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIREFX — タイヤ履き替え効果シミュレーター</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --card: #1e2334;
+    --border: #2a3050;
+    --accent: #3b82f6;
+    --green: #10b981;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --warn: #ef4444;
+    --amber: #f59e0b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans JP', sans-serif;
+    min-height: 100vh;
+  }
+  /* Header */
+  .header {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .05em; }
+  .logo span { color: var(--accent); }
+  .progress { display: flex; gap: 6px; }
+  .prog-dot { width: 24px; height: 4px; border-radius: 2px; background: var(--border); transition: background .3s; }
+  .prog-dot.active { background: var(--accent); }
+
+  /* Pages */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── PAGE 1 ── */
+  .p1-wrap { max-width: 520px; margin: 0 auto; padding: 40px 24px; }
+  .step-label { font-size: 11px; letter-spacing: .2em; color: var(--accent); font-family: 'Syne', sans-serif; margin-bottom: 8px; }
+  h1 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 40px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+  select {
+    background: var(--card); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; outline: none; cursor: pointer;
+    font-family: 'IBM Plex Sans JP', sans-serif;
+    appearance: none; -webkit-appearance: none;
+  }
+  select:focus { border-color: var(--accent); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-fields { display: flex; flex-direction: column; gap: 20px; }
+  .btn-calc {
+    margin-top: 12px; padding: 16px 0; border-radius: 10px; border: none;
+    cursor: pointer; background: var(--border); color: var(--muted);
+    font-size: 15px; font-weight: 700; font-family: 'Syne', sans-serif;
+    letter-spacing: .05em; transition: all .2s; width: 100%;
+  }
+  .btn-calc.ready {
+    background: var(--accent); color: #fff;
+    box-shadow: 0 0 24px #3b82f655;
+  }
+
+  /* ── PAGE 2 ── */
+  .p2-wrap { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+  .warn-banner {
+    background: var(--warn); border-radius: 8px; padding: 12px 20px;
+    margin-bottom: 28px; display: flex; align-items: center; gap: 10px;
+  }
+  .warn-banner span { color: #fff; font-weight: 700; font-size: 13px; font-family: 'Syne', sans-serif; letter-spacing: .05em; }
+  h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 24px; }
+  .section-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 20px;
+  }
+  .section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .05em; margin-bottom: 16px; }
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .chart-wrap { }
+  .chart-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  canvas { width: 100% !important; }
+  .stats-row { display: flex; justify-content: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+  .chip {
+    font-size: 11px; font-weight: 600; border-radius: 4px;
+    padding: 2px 8px; border: 1px solid;
+  }
+
+  /* ── PAGE 3 ── */
+  .p3-wrap { max-width: 520px; margin: 0 auto; padding: 60px 24px; text-align: center; }
+  .result-card {
+    background: linear-gradient(135deg, var(--card) 0%, #1a2540 100%);
+    border: 2px solid var(--green); border-radius: 16px;
+    padding: 40px 32px; margin-bottom: 24px;
+    box-shadow: 0 0 40px #10b98133;
+    opacity: 0; transform: translateY(20px);
+    transition: all .6s ease;
+  }
+  .result-card.show { opacity: 1; transform: translateY(0); }
+  .result-sub { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .result-amount { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 52px; color: var(--green); line-height: 1; }
+  .result-label { margin-top: 8px; font-size: 13px; font-weight: 500; }
+  .interval-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px 28px; margin-bottom: 40px;
+    opacity: 0; transform: translateY(20px);
+    transition: all .6s ease .2s;
+  }
+  .interval-card.show { opacity: 1; transform: translateY(0); }
+  .interval-title { font-size: 12px; color: var(--muted); margin-bottom: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .interval-row { display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .interval-val { text-align: center; }
+  .interval-pct { font-size: 11px; color: var(--amber); margin-bottom: 4px; }
+  .interval-num { font-size: 26px; font-weight: 700; font-family: 'Syne', sans-serif; }
+  .interval-sep { font-size: 24px; color: var(--muted); }
+  .interval-note { margin-top: 12px; font-size: 12px; color: var(--muted); }
+  .btn-reset {
+    padding: 14px 40px; border-radius: 10px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); font-size: 14px; cursor: pointer;
+    font-family: 'Syne', sans-serif; transition: all .2s;
+  }
+  .btn-reset:hover { color: var(--text); border-color: var(--text); }
+  .btn-next {
+    margin-top: 28px; width: 100%; padding: 16px 0; border-radius: 10px; border: none;
+    cursor: pointer; background: var(--accent); color: #fff;
+    font-size: 15px; font-weight: 700; font-family: 'Syne', sans-serif;
+    letter-spacing: .05em; box-shadow: 0 0 24px #3b82f655;
+  }
+
+  @media (max-width: 600px) {
+    .charts-row { grid-template-columns: 1fr; }
+    h1 { font-size: 22px; }
+    .result-amount { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">TIRE<span>FX</span></div>
+  <div class="progress">
+    <div class="prog-dot active" id="dot1"></div>
+    <div class="prog-dot" id="dot2"></div>
+    <div class="prog-dot" id="dot3"></div>
+  </div>
+</div>
+
+<!-- PAGE 1 -->
+<div class="page active" id="page1">
+  <div class="p1-wrap">
+    <div class="step-label">STEP 01</div>
+    <h1>走行条件を<br>入力してください</h1>
+    <div class="form-fields">
+      <div class="field">
+        <label>車型</label>
+        <select id="vehicleType">
+          <option value="">選択してください</option>
+          <option>低床4軸</option><option>3軸</option><option>2軸</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>平均積載荷重 (kg)</label>
+        <select id="load">
+          <option value="">選択してください</option>
+          <option>5,000</option><option>8,000</option><option>12,000</option>
+        </select>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>出発地区</label>
+          <select id="origin">
+            <option value="">選択</option>
+            <option>関東</option><option>北陸</option><option>関西</option>
+            <option>東北</option><option>中部</option><option>中国</option>
+            <option>四国</option><option>九州</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>目的地区</label>
+          <select id="dest">
+            <option value="">選択</option>
+            <option>関東</option><option>北陸</option><option>関西</option>
+            <option>東北</option><option>中部</option><option>中国</option>
+            <option>四国</option><option>九州</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>使用高速道路（最大2つ）</label>
+        <div class="grid2" style="margin-top:6px">
+          <select id="hw1">
+            <option value="">選択してください</option>
+            <option>東名</option><option>名神</option><option>北陸道</option>
+            <option>関越</option><option>東北道</option><option>中央道</option>
+            <option>新東名</option><option>新名神</option>
+          </select>
+          <select id="hw2">
+            <option value="">（なし）</option>
+            <option>東名</option><option>名神</option><option>北陸道</option>
+            <option>関越</option><option>東北道</option><option>中央道</option>
+            <option>新東名</option><option>新名神</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-calc" id="btnCalc" onclick="goPage2()">計　算</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page2">
+  <div class="p2-wrap">
+    <div class="warn-banner">
+      <span>🔒 UIには表示されないページ — 内部ロジック確認用</span>
+    </div>
+    <div class="step-label">STEP 02 — 走行データ分析</div>
+    <h2>速度・加速度の分布</h2>
+
+    <!-- 高速 -->
+    <div class="section-card">
+      <div class="section-title">【高速】</div>
+      <div class="charts-row">
+        <div class="chart-wrap">
+          <div class="chart-label">速度分布（km/h）</div>
+          <canvas id="hwSpeed" height="160"></canvas>
+          <div class="stats-row" id="hwSpeedStats"></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-label">加速度分布（m/s²）</div>
+          <canvas id="hwAcc" height="160"></canvas>
+          <div class="stats-row" id="hwAccStats"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 地場 -->
+    <div class="section-card">
+      <div class="section-title">【地場】</div>
+      <div class="charts-row">
+        <div class="chart-wrap">
+          <div class="chart-label">速度分布（km/h）</div>
+          <canvas id="locSpeed" height="160"></canvas>
+          <div class="stats-row" id="locSpeedStats"></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-label">加速度分布（m/s²）</div>
+          <canvas id="locAcc" height="160"></canvas>
+          <div class="stats-row" id="locAccStats"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-next" onclick="goPage3()">次　へ</button>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page3">
+  <div class="p3-wrap">
+    <div class="step-label" style="color:var(--green)">STEP 03 — 結果</div>
+    <h2>タイヤ履き替え効果</h2>
+    <div class="result-card" id="resultCard">
+      <div class="result-sub">1台・1ヶ月あたりの削減効果</div>
+      <div class="result-amount">¥35,720</div>
+      <div class="result-label">履き替え効果</div>
+    </div>
+    <div class="interval-card" id="intervalCard">
+      <div class="interval-title">90%予測区間</div>
+      <div class="interval-row">
+        <div class="interval-val">
+          <div class="interval-pct">下限</div>
+          <div class="interval-num">¥30,000</div>
+        </div>
+        <div class="interval-sep">〜</div>
+        <div class="interval-val">
+          <div class="interval-pct">上限</div>
+          <div class="interval-num">¥43,000</div>
+        </div>
+      </div>
+      <div class="interval-note">実際の削減額は走行条件により変動します</div>
+    </div>
+    <button class="btn-reset" onclick="goPage1()">最初からやり直す</button>
+  </div>
+</div>
+
+<script>
+// ── ガウス分布 ────────────────────────────────────────────────
+function gauss(x, mu, sigma) {
+  return (1/(sigma*Math.sqrt(2*Math.PI))) * Math.exp(-0.5*((x-mu)/sigma)**2);
+}
+function mixed(x, comps) {
+  return comps.reduce((s,c) => s + c.w * gauss(x, c.mu, c.sigma), 0);
+}
+function linspace(a, b, step) {
+  const arr = [];
+  for (let v = a; v <= b + 1e-9; v += step) arr.push(+v.toFixed(4));
+  return arr;
+}
+function calcStats(xs, ys) {
+  const tot = ys.reduce((a,b)=>a+b,0);
+  const mean = xs.reduce((s,x,i)=>s+x*ys[i],0)/tot;
+  let cum=0, lo=xs[0], hi=xs[xs.length-1];
+  for(let i=0;i<xs.length;i++){
+    cum+=ys[i];
+    if(cum/tot>=0.05 && lo===xs[0]) lo=xs[i];
+    if(cum/tot>=0.95){ hi=xs[i]; break; }
+  }
+  return { mean:+mean.toFixed(1), lo:+lo.toFixed(1), hi:+hi.toFixed(1) };
+}
+
+// ── データ生成 ────────────────────────────────────────────────
+const hwSpeedXs = linspace(40,130,0.5);
+const hwSpeedYs = hwSpeedXs.map(x=>mixed(x,[{mu:80,sigma:8,w:.5},{mu:95,sigma:7,w:.5}]));
+
+const locSpeedXs = linspace(0,90,0.5);
+const locSpeedYs = locSpeedXs.map(x=>mixed(x,[{mu:20,sigma:6,w:.33},{mu:40,sigma:7,w:.34},{mu:60,sigma:8,w:.33}]));
+
+const accXs = linspace(-3,3,0.05);
+const hwAccYs  = accXs.map(x=>gauss(x,0,0.4));
+const locAccYs = accXs.map(x=>gauss(x,0,1.0));
+
+const sHWSpeed  = calcStats(hwSpeedXs,  hwSpeedYs);
+const sLocSpeed = calcStats(locSpeedXs, locSpeedYs);
+const sHWAcc    = calcStats(accXs, hwAccYs);
+const sLocAcc   = calcStats(accXs, locAccYs);
+
+// ── チャート描画 ──────────────────────────────────────────────
+let charts = {};
+function makeChart(id, xs, ys, color, stats, statsEl) {
+  if(charts[id]) { charts[id].destroy(); }
+  const ctx = document.getElementById(id).getContext('2d');
+
+  const meanIdx = xs.findIndex(x => Math.abs(x-stats.mean)<(xs[1]-xs[0])*1.5);
+  const loIdx   = xs.findIndex(x => Math.abs(x-stats.lo)<(xs[1]-xs[0])*1.5);
+  const hiIdx   = xs.findIndex(x => Math.abs(x-stats.hi)<(xs[1]-xs[0])*1.5);
+
+  charts[id] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: xs,
+      datasets: [{
+        data: ys,
+        borderColor: color,
+        borderWidth: 2,
+        fill: true,
+        backgroundColor: hexToRgba(color, 0.15),
+        pointRadius: 0,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 600 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+        annotation: undefined
+      },
+      scales: {
+        x: {
+          ticks: { color: '#64748b', maxTicksLimit: 6, font:{size:10} },
+          grid: { color: '#2a3050' },
+          border: { color: '#2a3050' }
+        },
+        y: {
+          display: false,
+          grid: { display: false }
+        }
+      }
+    },
+    plugins: [{
+      id: 'reflines',
+      afterDraw(chart) {
+        const {ctx, chartArea, scales} = chart;
+        [[stats.mean, color, `μ=${stats.mean}`],
+         [stats.lo,  '#f59e0b', `5%`],
+         [stats.hi,  '#f59e0b', `95%`]].forEach(([val, col, lbl]) => {
+          const xPx = scales.x.getPixelForValue(val);
+          if(xPx < chartArea.left || xPx > chartArea.right) return;
+          ctx.save();
+          ctx.strokeStyle = col;
+          ctx.lineWidth = val===stats.mean ? 2 : 1.5;
+          ctx.setLineDash(val===stats.mean ? [4,2] : [3,3]);
+          ctx.beginPath();
+          ctx.moveTo(xPx, chartArea.top);
+          ctx.lineTo(xPx, chartArea.bottom);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = col;
+          ctx.font = 'bold 10px IBM Plex Sans JP';
+          ctx.textAlign = 'center';
+          ctx.fillText(lbl, xPx, chartArea.top - 4);
+          ctx.restore();
+        });
+      }
+    }]
+  });
+
+  // stats chips
+  statsEl.innerHTML = `
+    <span class="chip" style="color:${color};border-color:${hexToRgba(color,.4)};background:${hexToRgba(color,.1)}">平均 ${stats.mean}</span>
+    <span class="chip" style="color:#f59e0b;border-color:#f59e0b44;background:#f59e0b11">90%区間 ${stats.lo} ～ ${stats.hi}</span>
+  `;
+}
+function hexToRgba(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ── フォームバリデーション ────────────────────────────────────
+['vehicleType','load','origin','dest','hw1'].forEach(id => {
+  document.getElementById(id).addEventListener('change', checkReady);
+});
+function checkReady() {
+  const ok = ['vehicleType','load','origin','dest','hw1'].every(id=>document.getElementById(id).value);
+  const btn = document.getElementById('btnCalc');
+  btn.classList.toggle('ready', ok);
+}
+
+// ── ページ遷移 ────────────────────────────────────────────────
+function setPage(n) {
+  document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===n-1));
+  ['dot1','dot2','dot3'].forEach((id,i) => {
+    document.getElementById(id).classList.toggle('active', i<n);
+  });
+  window.scrollTo(0,0);
+}
+function goPage2() {
+  if(!document.getElementById('btnCalc').classList.contains('ready')) return;
+  setPage(2);
+  setTimeout(()=>{
+    makeChart('hwSpeed',  hwSpeedXs,  hwSpeedYs,  '#3b82f6', sHWSpeed,  document.getElementById('hwSpeedStats'));
+    makeChart('hwAcc',    accXs,      hwAccYs,    '#a78bfa', sHWAcc,    document.getElementById('hwAccStats'));
+    makeChart('locSpeed', locSpeedXs, locSpeedYs, '#10b981', sLocSpeed, document.getElementById('locSpeedStats'));
+    makeChart('locAcc',   accXs,      locAccYs,   '#fb923c', sLocAcc,   document.getElementById('locAccStats'));
+  }, 100);
+}
+function goPage3() {
+  setPage(3);
+  setTimeout(()=>{
+    document.getElementById('resultCard').classList.add('show');
+    document.getElementById('intervalCard').classList.add('show');
+  }, 100);
+}
+function goPage1() {
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('intervalCard').classList.remove('show');
+  setPage(1);
+}
+</script>
+</body>
+</html>
